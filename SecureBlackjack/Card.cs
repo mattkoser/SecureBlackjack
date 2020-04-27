@@ -10,7 +10,7 @@ namespace SecureBlackjack
         public String Suit { get; }
         public String Name { get; }
         public int Val { get; }
-        public string Draw { get; }
+        public string Image { get; }
         public Card(String s, String n)
         {
             Suit = s;
@@ -91,7 +91,7 @@ namespace SecureBlackjack
                     cardTemplate = cardTemplate.Replace("X", "♣");
                     break;
             }
-            Draw = cardTemplate;
+            Image = cardTemplate;
             
         }
 
