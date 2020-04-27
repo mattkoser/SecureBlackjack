@@ -30,7 +30,7 @@ namespace SecureBlackjack
             //ALAN - encrypt message for player p
 
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
-            using (StreamWriter s = File.CreateText(destination))
+            using(StreamWriter s = File.CreateText(destination))
             {
                 s.WriteLine(message);
             }
