@@ -64,7 +64,7 @@ namespace SecureBlackjack
                 cardChoice = RandomNumberGenerator.GetInt32(0, raw.Count); //Choose a random card and put it in our final stack. RandomNumberGenerator is derived from System.Security.Cryptography
                 Console.WriteLine($"Adding: {raw[cardChoice].Name} of {raw[cardChoice].Suit}");
                 shuffled.Push(raw[cardChoice]);
-                Console.WriteLine(raw[cardChoice].Draw);
+                Console.WriteLine(raw[cardChoice].Image);
                 raw.RemoveAt(cardChoice);
 
                 count2++;
