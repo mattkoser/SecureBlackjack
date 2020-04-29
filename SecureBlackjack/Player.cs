@@ -8,19 +8,31 @@ namespace SecureBlackjack
     class Player
     {
         FileSystemWatcher Listener = new FileSystemWatcher();
-        string Directory = @"C:\Blackjack";
+        public int Chips { get; set; }
         public string Folder { get; }
         public string Name;
+        public List<Card> hand = new List<Card>();
         public int Count { get; set; }
-        int Sent = 0;
         public Player(String name)
         {
-            
+            Name = name;
+            Folder = @"C:\Blackjack\" + name.ToUpper();
+            Chips = 500; //Starting amount
+            Count = 0;
         }
 
         private void Wait()
         {
 
+        }
+
+        public void DealCard(Card c)
+        {
+            hand.Add(c);
+        }
+        public List<Card> GetHand()
+        {
+            return hand;
         }
 
 
