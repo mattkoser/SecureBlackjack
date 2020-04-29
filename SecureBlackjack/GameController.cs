@@ -8,41 +8,68 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        string Directory = @"C:\Blackjack\Controller"; //Directory to hold communications
-        List<Player> Players = new List<Player>(); //List of players
-
-        FileSystemWatcher Communicator = new FileSystemWatcher(); //Used for filesystem communication
-        
+        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        string Directory = @"C:\Blackjack\Controller";
+        FileSystemWatcher Communicator = new FileSystemWatcher();
+        List<Player> Players = new List<Player>();
+        Queue<Player> Order = new Queue<Player>();
+        Deck deck = new Deck();
+        List<Card> Hand = new List<Card>(); //The dealers hand
         public GameController()
         {
             Console.WriteLine("Hello controller");
             WaitForPlayers();
         }
 
-        //Adds a player to the ArrayList of players
-        //Creates a new directory for player communication
-        public void AddPlayer(Player p)
-        {
-            Players.Add(p);
-
-        }
 
         //Will call the game loop once all players are in.
-        //Adendum: Possibly no longer needed
-        void WaitForPlayers()
+        private void WaitForPlayers()
         {
             FileSystemWatcher playerListen = new FileSystemWatcher();
             playerListen.Path = @"C:\Blackjack\Controller";
-            
+            playerListen.Filter = "*.txt";
             playerListen.EnableRaisingEvents = true;
             playerListen.Created += NewPlayer;
             playerListen.IncludeSubdirectories = true;
+            Console.WriteLine("Waiting for players to register! When you are ready to start the game, press Enter.");
             Console.ReadKey();
+            GameLoop();
 
         }
 
-        //Deprecated
-        static void NewPlayer(object sender, FileSystemEventArgs e)
+        private void GameLoop()
+        {
+            bool gameOver = false;
+            while(!gameOver)
+            {
+                foreach (Player p in Players) //Create the turn order
+                {
+                    Order.Enqueue(p);
+                    Deal(p); //Deal first card
+                }
+                Card next = deck.DrawCard();
+                Hand.Add(next); //Dealers Card
+                foreach(Player p in Players)
+                {
+                    Communicate(p, "dealerhas: " + next.Name + " " + next.Suit);
+                }
+                Console.ReadKey();
+            }
+
+        }
+
+        private void Deal(Player p)
+        {
+            Card next = deck.DrawCard();
+            p.DealCard(next);
+            Communicate(p, "deal: " + next.Name + " " + next.Suit);
+        }
+
+        private void BeginTurn(Player p)
+        {
+        }
+
+        private void NewPlayer(object sender, FileSystemEventArgs e)
         {
             Thread.Sleep(50);
             String line = "";
@@ -53,6 +80,8 @@ namespace SecureBlackjack
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
                     Console.WriteLine("Message recieved: " + line);
+                    Console.WriteLine(line.Length);
+                    line = line.Remove(line.Length-2); // get rid of new line escape char
                 }
             }
             catch (IOException f)
@@ -60,17 +89,12 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            DirectoryInfo folderMaker = new DirectoryInfo(@"C:\Blackjack" + "\\" + line.ToUpper());
+            String folder = @"C:\Blackjack";
+            DirectoryInfo folderMaker = new DirectoryInfo(folder);
 
             try
             {
-                if (folderMaker.Exists)
-                {
-                    Console.WriteLine("There is already a user with that name! Please try again.");
-                    Console.ReadKey();
-                    Environment.Exit(0);
-                }
-                folderMaker.Create();
+                folderMaker.CreateSubdirectory(line.ToUpper());
 
             }
             catch (Exception f)
@@ -79,22 +103,23 @@ namespace SecureBlackjack
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-            Console.ReadKey();
+
+            Player newPlayer = new Player(line);
+            Players.Add(newPlayer);
         }
 
-        //Communicator for Controller to Player
-        //Needs to be encrypted
         private void Communicate(Player p, String message)
         {
+            Console.WriteLine(p.Count);
             Encryption RSA = new Encryption();
             //ALAN - encrypt message for player p
-            RSA.Encrypt(message, RSA.ExportParameters(false), false);
+            //RSA.Encrypt(message, RSA.ExportParameters(false), false);
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
             using(StreamWriter s = File.CreateText(destination))
             {
                 s.WriteLine(message);
             }
-            p.Count = p.Count++;
+            p.Count = p.Count + 1;
         }
     }
 }

@@ -8,21 +8,17 @@ namespace SecureBlackjack
     class Player
     {
         FileSystemWatcher Listener = new FileSystemWatcher();
-        string Directory = @"C:\Blackjack";
+        public int Chips { get; set; }
         public string Folder { get; }
         public string Name;
-
-        public int MCount { get; set; } //Message Number
-        int Sent = 0;
-
+        public List<Card> hand = new List<Card>();
+        public int Count { get; set; }
         public Player(String name)
         {
-            this.Name = name;
-            string destination = @"C:\Blackjack" + "\\" + "message" + p.MCount + ".txt";
-            using (StreamWriter s = File.CreateText(destination))
-            {
-                s.WriteLine(name);
-            }
+            Name = name;
+            Folder = @"C:\Blackjack\" + name.ToUpper();
+            Chips = 500; //Starting amount
+            Count = 0;
         }
 
         private void Wait()
@@ -30,36 +26,22 @@ namespace SecureBlackjack
 
         }
 
-        //Incoming messages to player P
-        //Needes to be decrypted
-        private void Recieve(object source, FileSystemEventArgs file)
+        public void DealCard(Card c)
         {
-            String message = "";
-
-            StreamReader read = new StreamReader(@"C:\Blackjack\\" + Name);
-            try
-            {
-                message = read.ReadToEnd();
-            }
-            catch(IOException e)
-            {
-                Console.WriteLine("ERROR: ");
-                Console.WriteLine(e.Message);
-            }
+            hand.Add(c);
+        }
+        public List<Card> GetHand()
+        {
+            return hand;
         }
 
-        //Outgoing messages to Controller only
-        //Needs to be encrypted
-        private void Communicate(Player p, String message)
+
+
+        private void Recieved(object source, FileSystemEventArgs file)
         {
-            Encryption RSA = new Encryption();
-            //ALAN - encrypt message for player p
-            string destination = @"C:\Blackjack" + "\\" + "message" + p.MCount + ".txt";
-            using (StreamWriter s = File.CreateText(destination))
-            {
-                s.WriteLine(message);
-            }
-            p.MCount++;
+
         }
+
+
     }
 }
