@@ -22,12 +22,13 @@ namespace SecureBlackjack
             }
             else
             {
-                Communicate(name);
+                Player player = new Player(name);
+                CommunicateToController(name);
             }
-                
-
         }
-        private static void Communicate(String message)
+
+        //Maybe not necessary for this class
+        private static void CommunicateToController(String message)
         {
             //ALAN - Encrypt the message that is being sent to the controller
 

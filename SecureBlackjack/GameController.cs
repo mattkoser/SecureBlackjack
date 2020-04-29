@@ -8,18 +8,27 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-        string Directory = @"C:\Blackjack\Controller";
-        FileSystemWatcher Communicator = new FileSystemWatcher();
-        List<Player> Players = new List<Player>();
+        string Directory = @"C:\Blackjack\Controller"; //Directory to hold communications
+        List<Player> Players = new List<Player>(); //List of players
+
+        FileSystemWatcher Communicator = new FileSystemWatcher(); //Used for filesystem communication
+        
         public GameController()
         {
             Console.WriteLine("Hello controller");
             WaitForPlayers();
         }
 
+        //Adds a player to the ArrayList of players
+        //Creates a new directory for player communication
+        public void AddPlayer(Player p)
+        {
+            Players.Add(p);
+
+        }
 
         //Will call the game loop once all players are in.
+        //Adendum: Possibly no longer needed
         void WaitForPlayers()
         {
             FileSystemWatcher playerListen = new FileSystemWatcher();
@@ -32,6 +41,7 @@ namespace SecureBlackjack
 
         }
 
+        //Deprecated
         static void NewPlayer(object sender, FileSystemEventArgs e)
         {
             Thread.Sleep(50);
@@ -72,6 +82,8 @@ namespace SecureBlackjack
             Console.ReadKey();
         }
 
+        //Communicator for Controller to Player
+        //Needs to be encrypted
         private void Communicate(Player p, String message)
         {
             Encryption RSA = new Encryption();
