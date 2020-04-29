@@ -42,16 +42,16 @@ namespace SecureBlackjack
             bool gameOver = false;
             while(!gameOver)
             {
-                foreach (Player p in Players) //Create the turn order
+                for(int i = 0; i < Players.Count; i++) //Create the turn order
                 {
-                    Order.Enqueue(p);
-                    Deal(p); //Deal first card
+                    Order.Enqueue(Players[i]);
+                    Deal(Players[i]); //Deal first card
                 }
                 Card next = deck.DrawCard();
                 Hand.Add(next); //Dealers Card
-                foreach(Player p in Players)
+                for (int i = 0; i < Players.Count; i++)
                 {
-                    Communicate(p, "dealerhas: " + next.Name + " " + next.Suit);
+                    Communicate(Players[i], "dealerhas: " + next.Name + " " + next.Suit);
                 }
                 Console.ReadKey();
             }
@@ -60,6 +60,7 @@ namespace SecureBlackjack
 
         private void Deal(Player p)
         {
+            Console.WriteLine($"Dealing to {p.Name}!");
             Card next = deck.DrawCard();
             p.DealCard(next);
             Communicate(p, "deal: " + next.Name + " " + next.Suit);
@@ -81,7 +82,7 @@ namespace SecureBlackjack
                     line = sr.ReadToEnd();
                     Console.WriteLine("Message recieved: " + line);
                     Console.WriteLine(line.Length);
-                    line = line.Remove(line.Length-2); // get rid of new line escape char
+                    line = line.Remove(line.Length-2); // get rid of new line escape char 
                 }
             }
             catch (IOException f)
@@ -110,7 +111,7 @@ namespace SecureBlackjack
 
         private void Communicate(Player p, String message)
         {
-            Console.WriteLine(p.Count);
+            Console.WriteLine($"Player's message recieved count is {p.Count}");
             Encryption RSA = new Encryption();
             //ALAN - encrypt message for player p
             //RSA.Encrypt(message, RSA.ExportParameters(false), false);
