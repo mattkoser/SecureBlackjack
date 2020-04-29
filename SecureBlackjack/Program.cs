@@ -12,7 +12,7 @@ namespace SecureBlackjack
             Console.OutputEncoding = System.Text.Encoding.Unicode;
             Console.WriteLine("<Title>");
             Console.WriteLine("Welcome to Secure Blackjack!");
-            Console.WriteLine("Please enter your username. Controller to run controller client");
+            Console.WriteLine("Enter Username or CONTROLLER: ");
 
 
             String name = Console.ReadLine();
@@ -29,7 +29,6 @@ namespace SecureBlackjack
         }
         private static void Communicate(String message)
         {
-
             //ALAN - Encrypt the message that is being sent to the controller
 
             string destination = @"C:\Blackjack\CONTROLLER" + "\\" + message.ToUpper()+ count.ToString() + ".txt";
