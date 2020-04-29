@@ -8,6 +8,7 @@ namespace SecureBlackjack
 {
     class GameController
     {
+        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         string Directory = @"C:\Blackjack\Controller";
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
@@ -73,9 +74,9 @@ namespace SecureBlackjack
 
         private void Communicate(Player p, String message)
         {
-
+            Encryption RSA = new Encryption();
             //ALAN - encrypt message for player p
-
+            RSA.Encrypt(message, RSA.ExportParameters(false), false);
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
             using(StreamWriter s = File.CreateText(destination))
             {
@@ -83,9 +84,5 @@ namespace SecureBlackjack
             }
             p.Count = p.Count++;
         }
-
-
     }
-
-
 }

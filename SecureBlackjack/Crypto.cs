@@ -6,14 +6,16 @@ namespace SecureBlackjack
 {
     class Encryption //Symmetric Key Encryption / Decryption
     {
-        public byte[] encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
+        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        public byte[] Encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
         {
-            byte[] plainText, byte[] encryptedData;
+            byte[] plainText;
+            byte[] encryptedData;
             plainText = Encoding.ASCII.GetBytes(s);
 
             try  
             {
-                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())  
+                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())  
                 {  
                     RSA.ImportParameters(RSAKey);  
                         encryptedData = RSA.Encrypt(plainText, DoOAEPPadding);  
@@ -27,34 +29,34 @@ namespace SecureBlackjack
             }
         }
 
-        public String decrypt(byte[]Data, RSAParameters RSAKey, bool DoOAEPPadding)  
+        public String Decrypt(byte[]Data, RSAParameters RSAKey, bool DoOAEPPadding)  
         {  
             String decryptedText;
 
             try  
             {  
-                byte[] decryptedData;  
-                using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())  
+                byte[] decryptedData;
+                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
                 {  
                     RSA.ImportParameters(RSAKey);  
                         decryptedData = RSA.Decrypt(Data, DoOAEPPadding);  
                 }
-                decryptedText = Encoding.default.GetString(decryptedData);  
+                decryptedText = Encoding.ASCII.GetString(decryptedData); 
                 return decryptedText;
             }  
             catch (CryptographicException e)  
-            {  
-                Console.WriteLine(e.ToString());  
-                return null;  
-            } 
-        }         
+            {
+                Console.WriteLine(e.ToString());
+                return null;
+            }
+        }
     }
 
     class Authentication
     {
         public void authecticate(String player, String privateKey)
         {
-            Console.WriteLine("Enter Username: ")
+            Console.WriteLine("Enter Username: ");
         }
     }
 }
