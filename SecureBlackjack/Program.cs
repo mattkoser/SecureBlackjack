@@ -26,10 +26,16 @@ namespace SecureBlackjack
             FileSystemWatcher listener = new FileSystemWatcher();
             Thread.Sleep(50);
             listener.Path = @"C:\Blackjack\" + name.ToUpper();
+            Console.WriteLine(listener.Path);
             listener.Filter = "*.txt";
             listener.EnableRaisingEvents = true;
             listener.Created += Recieved;
-            Console.ReadKey();
+            listener.IncludeSubdirectories = true;
+            String end = "";
+            while(!end.Equals("end"))
+            {
+                end = Console.ReadLine();
+            }
 
 
         }
@@ -52,7 +58,6 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            Console.ReadKey();
         }
 
         private static void Communicate(String message)
