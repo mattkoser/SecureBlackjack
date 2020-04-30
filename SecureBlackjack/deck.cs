@@ -74,7 +74,6 @@ namespace SecureBlackjack
 
         public Card DrawCard()
         {
-            Console.WriteLine(shuffled.Count);
             if(shuffled.Count == 0)
             {
                 Shuffle(); //We should use up the entire deck before creating a new set of 8 decks.

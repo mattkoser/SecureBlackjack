@@ -34,7 +34,6 @@ namespace SecureBlackjack
             Console.WriteLine("Waiting for players to register! When you are ready to start the game, press Enter.");
             Console.ReadKey();
             GameLoop();
-
         }
 
         private void GameLoop()
@@ -42,6 +41,7 @@ namespace SecureBlackjack
             bool gameOver = false;
             while(!gameOver)
             {
+                Console.WriteLine("Test");
                 for(int i = 0; i < Players.Count; i++) //Create the turn order
                 {
                     Order.Enqueue(Players[i]);
@@ -80,8 +80,8 @@ namespace SecureBlackjack
                 {
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    Console.WriteLine("Message recieved: " + line);
-                    Console.WriteLine(line.Length);
+                    Console.WriteLine(line + " Has Joined!");
+                    //Console.WriteLine(line.Length);
                     line = line.Remove(line.Length-2); // get rid of new line escape char 
                 }
             }
