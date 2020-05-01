@@ -11,3 +11,16 @@ C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.dll
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.pdb
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.genruntimeconfig.cache
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3.1\SecureBlackjack.exe
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3.1\SecureBlackjack.deps.json
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3.1\SecureBlackjack.runtimeconfig.json
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3.1\SecureBlackjack.runtimeconfig.dev.json
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3.1\SecureBlackjack.dll
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\bin\Debug\netcoreapp3.1\SecureBlackjack.pdb
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.csprojAssemblyReference.cache
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.csproj.CoreCompileInputs.cache
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.AssemblyInfoInputs.cache
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.AssemblyInfo.cs
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.dll
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.pdb
+C:\Users\astan\Documents\GitHub\SecureBlackjack\SecureBlackjack\obj\Debug\netcoreapp3.1\SecureBlackjack.genruntimeconfig.cache
