@@ -33,6 +33,7 @@ namespace SecureBlackjack
             playerListen.IncludeSubdirectories = true;
             Console.WriteLine("Waiting for players to register! When you are ready to start the game, press Enter.");
             Console.ReadKey();
+            playerListen.Dispose();
             GameLoop();
 
         }
@@ -42,28 +43,99 @@ namespace SecureBlackjack
             bool gameOver = false;
             while(!gameOver)
             {
+                Console.WriteLine("Dealing a card to all players at table!");
                 for(int i = 0; i < Players.Count; i++) //Create the turn order
                 {
                     Order.Enqueue(Players[i]);
                     Deal(Players[i]); //Deal first card
                 }
                 Card next = deck.DrawCard();
+                Console.WriteLine($"Dealer has been dealt a {next.Name} of {next.Suit}!");
                 Hand.Add(next); //Dealers Card
                 for (int i = 0; i < Players.Count; i++)
                 {
-                    Communicate(Players[i], "dealerhas: " + next.Name + " " + next.Suit);
+                    Communicate(Players[i], "dealerhas " + next.Name + " " + next.Suit);
                 }
-                Console.ReadKey();
+                Console.WriteLine("Dealing out second card!");
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Deal(Players[i]); //Deal first card
+                }
+                next = deck.DrawCard();
+                Console.WriteLine($"Dealer has been dealt a {next.Name} of {next.Suit}.");
+                Hand.Add(next); //Dealers Card
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Communicate(Players[i], "dealerfacedown ");
+                }
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    ProcessTurn(Players[i]);
+                    
+                }
             }
 
         }
 
-        private void Deal(Player p)
+        private void ProcessTurn(Player p)
         {
-            Console.WriteLine($"Dealing to {p.Name}!");
+            FileSystemWatcher turnListen = new FileSystemWatcher();
+            turnListen.Path = @"C:\Blackjack\Controller";
+            turnListen.Filter = "*.txt";
+            turnListen.EnableRaisingEvents = true;
+            turnListen.Created += Turn;
+            turnListen.IncludeSubdirectories = true;
+            int playerValue = GetHandValue(p.GetHand());
+            String dealerValue = $"{Hand[0].Val}+?"; //Players can only see the first card that the dealer has
+            Communicate(p, $"itsyourturn {playerValue} {dealerValue}");
+            Console.ReadKey();
+        }
+
+        private int GetHandValue(List<Card> hand)
+        {
+            int value = 0;
+            int ace = 0;
+            for(int i = 0; i < hand.Count; i++)
+            {
+                if (hand[i].Name == "Ace")
+                    ace++;
+                value += hand[i].Val;
+            }
+            for(int i = 0; i <= ace; i++)
+            {
+                if (value > 21)
+                    value = value - 10; //Adjust the ace's value to 1. This is done for as many aces are in the hand.
+            }
+            return value;
+        }
+
+        private void Turn(object sender, FileSystemEventArgs e) //Gets turn from player
+        {
+            Thread.Sleep(50);
+            String line = "";
+            try
+            {   // Open the text file using a stream reader.
+                using (StreamReader sr = new StreamReader(e.FullPath))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    line = sr.ReadToEnd();
+                    line = line.Remove(line.Length); // get rid of new line escape char 
+                }
+            }
+            catch (IOException f)
+            {
+                Console.WriteLine("The file could not be read:");
+                Console.WriteLine(f.Message);
+            }
+            
+        }
+
+            private void Deal(Player p)
+        {
             Card next = deck.DrawCard();
             p.DealCard(next);
-            Communicate(p, "deal: " + next.Name + " " + next.Suit);
+            Console.WriteLine($"{p.Name} has been dealt a {next.Name} of {next.Suit}!");
+            Communicate(p, "deal " + next.Name + " " + next.Suit);
         }
 
         private void BeginTurn(Player p)

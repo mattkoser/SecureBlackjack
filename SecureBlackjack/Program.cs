@@ -22,41 +22,68 @@ namespace SecureBlackjack
                 GameController controller = new GameController();
                 Environment.Exit(0);
             }
+            Thread.Sleep(1000);
             Communicate(name);
             FileSystemWatcher listener = new FileSystemWatcher();
             Thread.Sleep(50);
             listener.Path = @"C:\Blackjack\" + name.ToUpper();
-            Console.WriteLine(listener.Path);
             listener.Filter = "*.txt";
             listener.EnableRaisingEvents = true;
             listener.Created += Recieved;
             listener.IncludeSubdirectories = true;
             String end = "";
-            while(!end.Equals("end"))
-            {
-                end = Console.ReadLine();
-            }
-
 
         }
 
         private static void Recieved(object sender, FileSystemEventArgs e)
         {
+            String line = "";
             Thread.Sleep(50);
             try
             {   // Open the text file using a stream reader.
                 using (StreamReader sr = new StreamReader(e.FullPath))
                 {
                     // Read the stream to a string, and write the string to the console.
-                    String line = sr.ReadToEnd();
-                    Console.WriteLine("Message recieved: " + line);
-                    Console.WriteLine(line.Length);
+                    line = sr.ReadToEnd();
                 }
             }
             catch (IOException f)
             {
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
+            }
+            String[] message = line.Split(' ');
+            Console.WriteLine("\n_____________________________________________________________\n");
+            switch(message[0]) //first word is the "command"
+            {
+                case "deal":
+                    Console.WriteLine($"You were dealt a {message[1]} of {message[2]}");
+                    break;
+                case "dealerhas":
+                    Console.WriteLine($"The dealer was dealt a {message[1]} of {message[2]}");
+                    break;
+                case "dealerfacedown":
+                    Console.WriteLine("The dealer has recieved a face down card.");
+                    break;
+                case "itsyourturn":
+                    Console.WriteLine($"Its your turn to play! Options are: (h)it, (s)tand");
+                    Console.WriteLine($"Your hand value: {message[1]}\nDealer's Hand: {message[2]}");
+                    String choice = Console.ReadLine();
+                    Communicate(choice);
+                    break;
+                case "hit":
+                    Console.WriteLine($"You were dealt a {message[1]} of {message[2]}. Your new hand value is {message[3]}");
+                    Console.WriteLine($"Its your turn to play! Options are: (h)it, (s)tand");
+                    Console.WriteLine($"Your hand value: {message[1]}\nDealer's Hand: {message[2]}");
+                    String hitchoice = Console.ReadLine();
+                    Communicate(hitchoice);
+                    break;
+                case "bust":
+                    Console.WriteLine($"You were dealt a {message[1]} of {message[2]} and have lost the hand.");
+                    break;
+                default:
+                    Console.WriteLine("No valid message has been detected...");
+                    break;
             }
         }
 

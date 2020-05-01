@@ -48,10 +48,8 @@ namespace SecureBlackjack
                 {
                     for (int k = 0; k < 13; k++) //For every value
                     {
-                        Console.WriteLine($"Adding card: {Enum.GetName(typeof(Names), k)} of {(Enum.GetName(typeof(Suits), j))}");
                         Card next = new Card((Enum.GetName(typeof(Suits), j)), (Enum.GetName(typeof(Names), k)));
                         raw.Add(next);
-                        count++;
                     }
                 }
             }
@@ -62,21 +60,18 @@ namespace SecureBlackjack
             while(raw.Count > 0)
             {   
                 cardChoice = RandomNumberGenerator.GetInt32(0, raw.Count); //Choose a random card and put it in our final stack. RandomNumberGenerator is derived from System.Security.Cryptography
-                Console.WriteLine($"Adding: {raw[cardChoice].Name} of {raw[cardChoice].Suit}");
                 shuffled.Push(raw[cardChoice]);
-                Console.WriteLine(raw[cardChoice].Image);
                 raw.RemoveAt(cardChoice);
 
                 count2++;
             }
-            Console.WriteLine($"Count1: {count}, Count2: {count2}");
         }
 
         public Card DrawCard()
         {
-            Console.WriteLine(shuffled.Count);
             if(shuffled.Count == 0)
             {
+                Console.WriteLine("The deck is being re-shuffled!");
                 Shuffle(); //We should use up the entire deck before creating a new set of 8 decks.
             }
             return shuffled.Pop();
