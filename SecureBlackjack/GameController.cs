@@ -11,7 +11,6 @@ namespace SecureBlackjack
         RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
-        Queue<Player> Order = new Queue<Player>();
         Deck deck = new Deck();
         List<Card> Hand = new List<Card>(); //The dealers hand
         int Current;
@@ -283,7 +282,6 @@ namespace SecureBlackjack
                 {
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    Console.WriteLine(line.Length);
                     line = line.Remove(line.Length-2); // get rid of new line escape char
                     Console.WriteLine($"{line} has been registered!");
                 }
@@ -317,7 +315,7 @@ namespace SecureBlackjack
         private void Communicate(Player p, String message)
         {
             Encryption RSA = new Encryption();
-            //ALAN - encrypt message for player p
+            //ALAN - encrypt message for player p 
             //RSA.Encrypt(message, RSA.ExportParameters(false), false);
             p.Count = p.Count + 1;
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
