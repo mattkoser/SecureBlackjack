@@ -41,7 +41,6 @@ namespace SecureBlackjack
         public void Shuffle()
         {
             List<Card> raw = new List<Card>(); //Generate a list of every card in order, 8 total decks.
-            int count = 0;
             for (int i = 0; i < 8; i++) //Casinos use 8 total decks up before re-shuffling to hinder card counting, we will do the same
             {
                 for (int j = 0; j < 4; j++) //For each suit

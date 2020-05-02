@@ -9,15 +9,16 @@ namespace SecureBlackjack
     class GameController
     {
         RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-        string Directory = @"C:\Blackjack\Controller";
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Queue<Player> Order = new Queue<Player>();
         Deck deck = new Deck();
         List<Card> Hand = new List<Card>(); //The dealers hand
+        int Current;
+        bool DealerBust = false;
         public GameController()
         {
-            Console.WriteLine("Hello controller");
+            Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
             WaitForPlayers();
         }
 
@@ -26,7 +27,7 @@ namespace SecureBlackjack
         private void WaitForPlayers()
         {
             FileSystemWatcher playerListen = new FileSystemWatcher();
-            playerListen.Path = @"C:\Blackjack\Controller";
+            playerListen.Path = @"C:\Blackjack\CONTROLLER";
             playerListen.Filter = "*.txt";
             playerListen.EnableRaisingEvents = true;
             playerListen.Created += NewPlayer;
@@ -46,16 +47,12 @@ namespace SecureBlackjack
                 Console.WriteLine("Dealing a card to all players at table!");
                 for(int i = 0; i < Players.Count; i++) //Create the turn order
                 {
-                    Order.Enqueue(Players[i]);
                     Deal(Players[i]); //Deal first card
                 }
                 Card next = deck.DrawCard();
                 Console.WriteLine($"Dealer has been dealt a {next.Name} of {next.Suit}!");
                 Hand.Add(next); //Dealers Card
-                for (int i = 0; i < Players.Count; i++)
-                {
-                    Communicate(Players[i], "dealerhas " + next.Name + " " + next.Suit);
-                }
+                SendToAll("dealerhas " + next.Name + " " + next.Suit);
                 Console.WriteLine("Dealing out second card!");
                 for (int i = 0; i < Players.Count; i++)
                 {
@@ -64,31 +61,131 @@ namespace SecureBlackjack
                 next = deck.DrawCard();
                 Console.WriteLine($"Dealer has been dealt a {next.Name} of {next.Suit}.");
                 Hand.Add(next); //Dealers Card
-                for (int i = 0; i < Players.Count; i++)
+                SendToAll("dealerfacedown ");
+                for (int i = 0; i < Players.Count; i++) //Cycle through every player at the table and get their final hand
                 {
-                    Communicate(Players[i], "dealerfacedown ");
-                }
-                for (int i = 0; i < Players.Count; i++)
-                {
+                    Current = i;
                     ProcessTurn(Players[i]);
-                    
                 }
+
+                Thread.Sleep(500);
+
+                int dv = GetHandValue(Hand);
+                if (dv == 21) //End the loop early
+                {
+                    for (int i = 0; i < Players.Count; i++)
+                    {
+                        int playerVal = GetHandValue(Players[i].hand);
+                        if (playerVal == 21)
+                        {
+                            Communicate(Players[i], "push ");
+                        }
+                        else
+                        {
+                            Communicate(Players[i], "lose ");
+                        }
+                    }
+                    Console.WriteLine("Please press enter to begin a new round.");
+                    Console.ReadKey();
+                    ResetGame();
+                    continue;
+                }
+                Console.WriteLine("All players have finished. It is now the dealers turn.");
+                SendToAll($"dealerhand {Hand[1].Name} {Hand[1].Suit} {dv}"); //Reveal the flipped over card to all players
+
+                while (dv <= 17) //"Automatic dealer" stands on 17, hits on under
+                {
+
+                    next = deck.DrawCard();
+                    Hand.Add(next);
+                    dv = GetHandValue(Hand);
+                    SendToAll($"dealerdraw {next.Name} {next.Suit} {dv}");
+                    if (dv >= 17)
+                        break; //while loop one too many times
+                    Thread.Sleep(200);
+                }
+                
+
+                if (dv > 21)
+                    DealerBust = true;
+
+
+                Thread.Sleep(300); //Things are going WAYY too fast for a player to digest. the sleeps help it feel mroe natural;
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    int playerVal = GetHandValue(Players[i].hand);
+                    int dealerVal = GetHandValue(Hand);
+                    if (Players[i].Bust) //Players can't win if they bsut
+                    {
+                        Communicate(Players[i], "lose ");
+                        continue;
+                    }
+                    if(DealerBust) //Dealer wins, all remaining players win
+                    {
+                        Communicate(Players[i], "win ");
+                        continue;
+                    }
+
+                    if (playerVal == dealerVal)
+                    {
+                        Communicate(Players[i], "push ");
+                    }
+                    else if (playerVal > dealerVal)
+                    {
+                        Communicate(Players[i], "win ");
+                    }
+                    else if (dealerVal > playerVal)
+                    {
+                        Communicate(Players[i], "lose ");
+                    }
+                }
+                Console.WriteLine("Please press enter to begin a new round.");
+                Console.ReadKey();
+                ResetGame();
             }
 
+        }
+        private void ResetGame()
+        {
+            for (int i = 0; i < Players.Count; i++)
+            {
+                Players[i].Reset();
+                Hand.Clear();
+                DealerBust = false;
+            }
+        }
+
+        private void SendToAll(String m)
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                Communicate(Players[i], m);
+            }
         }
 
         private void ProcessTurn(Player p)
         {
+            Console.WriteLine($"It is now {p.Name}'s turn.");
             FileSystemWatcher turnListen = new FileSystemWatcher();
-            turnListen.Path = @"C:\Blackjack\Controller";
+            string watcherPath = @"C:\Blackjack\CONTROLLER\" + p.Name.ToUpper();
+            turnListen.Path = watcherPath;
             turnListen.Filter = "*.txt";
             turnListen.EnableRaisingEvents = true;
             turnListen.Created += Turn;
             turnListen.IncludeSubdirectories = true;
             int playerValue = GetHandValue(p.GetHand());
             String dealerValue = $"{Hand[0].Val}+?"; //Players can only see the first card that the dealer has
+            int realDealerValue = GetHandValue(Hand);
             Communicate(p, $"itsyourturn {playerValue} {dealerValue}");
-            Console.ReadKey();
+            if(realDealerValue == 21)
+            {
+                Communicate(p, "dealerblackjack ");
+                p.Done = true;
+            }
+            while (!p.Done)
+                continue;
+            turnListen.Dispose();
+
         }
 
         private int GetHandValue(List<Card> hand)
@@ -97,11 +194,14 @@ namespace SecureBlackjack
             int ace = 0;
             for(int i = 0; i < hand.Count; i++)
             {
-                if (hand[i].Name == "Ace")
+                if (hand[i].Name.Equals("Ace"))
+                {
                     ace++;
+                }
+
                 value += hand[i].Val;
             }
-            for(int i = 0; i <= ace; i++)
+            for(int i = 0; i < ace; i++)
             {
                 if (value > 21)
                     value = value - 10; //Adjust the ace's value to 1. This is done for as many aces are in the hand.
@@ -119,7 +219,7 @@ namespace SecureBlackjack
                 {
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    line = line.Remove(line.Length); // get rid of new line escape char 
+                    line = line.Remove(line.Length-2); // get rid of new line escape char 
                 }
             }
             catch (IOException f)
@@ -127,10 +227,41 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
+
+
+            line = line.ToLower();
+
+            switch (line)
+            {
+                case "h":
+                case "hit":
+                    Deal(Players[Current]);
+                    int playerValue = GetHandValue(Players[Current].GetHand());
+                    String dealerValue = $"{Hand[0].Val}+?";
+                    Players[Current].Bust = playerValue > 21;
+                    if (Players[Current].Bust)
+                    {
+                        Communicate(Players[Current], $"bust {playerValue}");
+                        Players[Current].Done = true;
+                    }
+                    else
+                        Communicate(Players[Current], $"itsyourturn {playerValue} {dealerValue}");
+                    break;
+                case "s":
+                case "stand":
+                    Console.WriteLine("Player standing.");
+                    Players[Current].Done = true;
+                    Communicate(Players[Current], "stood ");
+                    break;
+                default:
+                    Communicate(Players[Current], "invalid ");
+                    break;
+            }
             
         }
 
-            private void Deal(Player p)
+
+       private void Deal(Player p)
         {
             Card next = deck.DrawCard();
             p.DealCard(next);
@@ -152,9 +283,9 @@ namespace SecureBlackjack
                 {
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    Console.WriteLine("Message recieved: " + line);
                     Console.WriteLine(line.Length);
-                    line = line.Remove(line.Length-2); // get rid of new line escape char 
+                    line = line.Remove(line.Length-2); // get rid of new line escape char
+                    Console.WriteLine($"{line} has been registered!");
                 }
             }
             catch (IOException f)
@@ -163,11 +294,13 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
             String folder = @"C:\Blackjack";
+            String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
-
+            DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
             try
             {
-                folderMaker.CreateSubdirectory(line.ToUpper());
+                folderMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
+                otherMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
 
             }
             catch (Exception f)
@@ -183,16 +316,17 @@ namespace SecureBlackjack
 
         private void Communicate(Player p, String message)
         {
-            Console.WriteLine($"Player's message recieved count is {p.Count}");
             Encryption RSA = new Encryption();
             //ALAN - encrypt message for player p
             //RSA.Encrypt(message, RSA.ExportParameters(false), false);
+            p.Count = p.Count + 1;
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
+            Thread.Sleep(100);
             using(StreamWriter s = File.CreateText(destination))
             {
                 s.WriteLine(message);
             }
-            p.Count = p.Count + 1;
+
         }
     }
 }
