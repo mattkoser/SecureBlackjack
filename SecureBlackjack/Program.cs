@@ -8,13 +8,16 @@ namespace SecureBlackjack
     {
         static int count = 0;
         static string name;
-
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
-            Console.WriteLine("<Title>");
-            Console.WriteLine("Welcome to Secure Blackjack!");
-            Console.WriteLine("Enter Username or CONTROLLER: ");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("                                                           \r\n                                                           \r\n  /$$$$$$$  /$$$$$$   /$$$$$$$ /$$   /$$  /$$$$$$  /$$$$$$ \r\n /$$_____/ /$$__  $$ /$$_____/| $$  | $$ /$$__  $$/$$__  $$\r\n|  $$$$$$ | $$$$$$$$| $$      | $$  | $$| $$  \\__/ $$$$$$$$\r\n \\____  $$| $$_____/| $$      | $$  | $$| $$     | $$_____/\r\n /$$$$$$$/|  $$$$$$$|  $$$$$$$|  $$$$$$/| $$     |  $$$$$$$\r\n|_______/  \\_______/ \\_______/ \\______/ |__/      \\_______/\r\n                                                           \r\n                                                          ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("/$$       /$$                     /$$                               /$$      \r\n| $$      | $$                    | $$                              | $$      \r\n| $$$$$$$ | $$  /$$$$$$   /$$$$$$$| $$   /$$ /$$  /$$$$$$   /$$$$$$$| $$   /$$\r\n| $$__  $$| $$ |____  $$ /$$_____/| $$  /$$/|__/ |____  $$ /$$_____/| $$  /$$/\r\n| $$  \\ $$| $$  /$$$$$$$| $$      | $$$$$$/  /$$  /$$$$$$$| $$      | $$$$$$/ \r\n| $$  | $$| $$ /$$__  $$| $$      | $$_  $$ | $$ /$$__  $$| $$      | $$_  $$ \r\n| $$$$$$$/| $$|  $$$$$$$|  $$$$$$$| $$ \\  $$| $$|  $$$$$$$|  $$$$$$$| $$ \\  $$\r\n|_______/ |__/ \\_______/ \\_______/|__/  \\__/| $$ \\_______/ \\_______/|__/  \\__/\r\n                                       /$$  | $$                              \r\n                                      |  $$$$$$/                              \r\n                                       \\______/                               ");
+            Console.WriteLine("\nWelcome to Secure Blackjack, a CS 492 - Computer Security final project");
+            Console.WriteLine("This project was created by : Matt Koser & Alan Stano");
+            Console.WriteLine("Please enter a username. Enter \"CONTROLLER\" to run the controller client. This is required to play.");
 
 
             name = Console.ReadLine();
