@@ -45,6 +45,8 @@ namespace SecureBlackjack
             bool gameOver = false; //Eventually we may decide to implement a win condition. For now it will just play rounds indefiniately
             while(!gameOver)
             {
+                SendToAll("start "); //Allow input from player consoles.
+
                 for (int i = 0; i < Players.Count; i++) //Cycle through every player at the table and get their bet
                 {
                     Current = i;
@@ -403,7 +405,7 @@ namespace SecureBlackjack
 
         private void NewPlayer(object sender, FileSystemEventArgs e)
         {
-            Thread.Sleep(50);
+            Thread.Sleep(400);
             String line = "";
             try
             {   // Open the text file using a stream reader.
@@ -436,9 +438,9 @@ namespace SecureBlackjack
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-
             Player newPlayer = new Player(line);
-            Players.Add(newPlayer);
+            Communicate(newPlayer, "good"); //Validate player name and send "bad" if their name does not fit criteria
+            Players.Add(newPlayer); //only if name is "good"
         }
 
         private void Communicate(Player p, String message)

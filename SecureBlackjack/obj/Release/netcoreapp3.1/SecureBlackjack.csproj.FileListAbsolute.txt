@@ -4,6 +4,7 @@ C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\bin\Release\netcoreap
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\bin\Release\netcoreapp3.1\SecureBlackjack.runtimeconfig.dev.json
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\bin\Release\netcoreapp3.1\SecureBlackjack.dll
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\bin\Release\netcoreapp3.1\SecureBlackjack.pdb
+C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Release\netcoreapp3.1\SecureBlackjack.csprojAssemblyReference.cache
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Release\netcoreapp3.1\SecureBlackjack.csproj.CoreCompileInputs.cache
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Release\netcoreapp3.1\SecureBlackjack.AssemblyInfoInputs.cache
 C:\Users\Matt\source\repos\SecureBlackjack\SecureBlackjack\obj\Release\netcoreapp3.1\SecureBlackjack.AssemblyInfo.cs
