@@ -26,11 +26,6 @@ namespace SecureBlackjack
             Won = false;
         }
 
-        private void Wait()
-        {
-
-        }
-
        public void Reset()
        {
             hand.Clear();
@@ -47,14 +42,5 @@ namespace SecureBlackjack
         {
             return hand;
         }
-
-
-
-        private void Recieved(object source, FileSystemEventArgs file)
-        {
-
-        }
-
-
     }
 }

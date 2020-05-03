@@ -203,7 +203,7 @@ namespace SecureBlackjack
             for(int i = 0; i < ace; i++)
             {
                 if (value > 21)
-                    value = value - 10; //Adjust the ace's value to 1. This is done for as many aces are in the hand.
+                    value = value - 10; //Adjust the ace's value to 1 . This is done for as many aces are in the hand.
             }
             return value;
         }
