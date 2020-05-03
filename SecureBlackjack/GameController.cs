@@ -15,6 +15,8 @@ namespace SecureBlackjack
         List<Card> Hand = new List<Card>(); //The dealers hand
         int Current;
         bool DealerBust = false;
+        const int MIN_BET = 1;
+        const int MAX_BET = 100;
         public GameController()
         {
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
@@ -40,9 +42,14 @@ namespace SecureBlackjack
 
         private void GameLoop()
         {
-            bool gameOver = false;
+            bool gameOver = false; //Eventually we may decide to implement a win condition. For now it will just play rounds indefiniately
             while(!gameOver)
             {
+                for (int i = 0; i < Players.Count; i++) //Cycle through every player at the table and get their bet
+                {
+                    Current = i;
+                    ProcessBet(Players[i]);
+                }
                 Console.WriteLine("Dealing a card to all players at table!");
                 for(int i = 0; i < Players.Count; i++) //Create the turn order
                 {
@@ -75,13 +82,14 @@ namespace SecureBlackjack
                     for (int i = 0; i < Players.Count; i++)
                     {
                         int playerVal = GetHandValue(Players[i].hand);
-                        if (playerVal == 21)
+                        if (playerVal == 21) //player also had blackjack so they tied the dealer
                         {
                             Communicate(Players[i], "push ");
+                            DepositCredits(Players[i], Players[i].Bet); //In a push you get your original bet back
                         }
                         else
                         {
-                            Communicate(Players[i], "lose ");
+                            Communicate(Players[i], "lose "); //No credits on loss
                         }
                     }
                     Console.WriteLine("Please press enter to begin a new round.");
@@ -114,32 +122,52 @@ namespace SecureBlackjack
                 {
                     int playerVal = GetHandValue(Players[i].hand);
                     int dealerVal = GetHandValue(Hand);
+                    int payout = 0;
                     if (Players[i].Bust) //Players can't win if they bsut
                     {
-                        Communicate(Players[i], "lose ");
+                        Communicate(Players[i], "lose "); //No credits on loss
                         continue;
                     }
-                    if(DealerBust) //Dealer wins, all remaining players win
+                    if(DealerBust) //Dealer busts, all remaining players win
                     {
                         Communicate(Players[i], "win ");
-                        continue;
+                        if (playerVal == 21) //3:2
+                        {
+                            payout = Players[i].Bet + (int)(Players[i].Bet * (3 / 2)); //3:2 + their original bet back
+                        }
+                        else //No blackjack, so 1:1
+                        {
+                            payout = (int)(Players[i].Bet * (2 / 1));
+                        }
                     }
-
-                    if (playerVal == dealerVal)
+                    else if (playerVal == dealerVal) //1:1, original bet returned
                     {
                         Communicate(Players[i], "push ");
+                        payout = Players[i].Bet; 
                     }
                     else if (playerVal > dealerVal)
                     {
                         Communicate(Players[i], "win ");
+                        if (playerVal == 21) //3:2
+                        {
+                            payout = Players[i].Bet + (int)(Players[i].Bet * (3 / 2)); //3:2 + their original bet back
+                        }
+                        else //No blackjack, so 2:1
+                        {
+                            payout = (int)(Players[i].Bet * (2 / 1));
+                        }
                     }
                     else if (dealerVal > playerVal)
                     {
-                        Communicate(Players[i], "lose ");
+                        Communicate(Players[i], "lose "); //No credits
+                        continue;
                     }
+                    Console.WriteLine($"Paying player {Players[i].Name} {payout}.");
+                    DepositCredits(Players[i], payout);
                 }
                 Console.WriteLine("Please press enter to begin a new round.");
                 Console.ReadKey();
+                SendToAll("newround ");
                 ResetGame();
             }
 
@@ -159,6 +187,107 @@ namespace SecureBlackjack
             for(int i = 0; i < Players.Count; i++)
             {
                 Communicate(Players[i], m);
+            }
+        }
+        private void ProcessBet(Player p)
+        {
+            int playerChips = p.Chips;
+            if (playerChips <= 0)
+            {
+                Communicate(p, "outofchips ");
+                Console.WriteLine($"{p.Name} has ran out of chips and has been given 100 more.");
+                DepositCredits(p, 100);
+            }
+            Console.WriteLine($"It is now {p.Name}'s turn.");
+            FileSystemWatcher betListen = new FileSystemWatcher();
+            string watcherPath = @"C:\Blackjack\CONTROLLER\" + p.Name.ToUpper();
+            betListen.Path = watcherPath;
+            betListen.Filter = "*.txt";
+            betListen.EnableRaisingEvents = true;
+            betListen.Created += NewBet;
+            betListen.IncludeSubdirectories = true;
+
+            Communicate(p, $"inputbet {playerChips} {MIN_BET} {MAX_BET}");
+
+            while (p.Bet == 0)
+                continue;
+            betListen.Dispose();
+        }
+
+        private void NewBet(object sender, FileSystemEventArgs e) //Gets turn from player
+        {
+            Thread.Sleep(50);
+            String line = "";
+            try
+            {  
+                using (StreamReader sr = new StreamReader(e.FullPath))
+                {
+                    line = sr.ReadToEnd();
+                    line = line.Remove(line.Length - 2); // get rid of new line escape char 
+                }
+            }
+            catch (IOException f)
+            {
+                Console.WriteLine("The file could not be read:");
+                Console.WriteLine(f.Message);
+            }
+            int bet;
+            try
+            {
+                bet = Int32.Parse(line);
+            }
+            catch (Exception g) //Usually when the input is not a valid integer
+            {
+                Console.WriteLine($"Error parsing input from {Players[Current].Name}'s bet : {g.ToString()}");
+                Communicate(Players[Current], $"badbet {MIN_BET} {MAX_BET}");
+                return; //break out of the method and wait for a new input
+            }
+            if (bet <= MAX_BET && bet >= MIN_BET)
+            {
+                Withdraw(Players[Current], bet);
+                Players[Current].Bet = bet;
+            }
+            else
+            {
+                Communicate(Players[Current], $"badbet {MIN_BET} {MAX_BET}");
+            }
+
+        }
+
+        private void DepositCredits(Player p, int amt)
+        {
+            //Blackjack pays out 3:2, win pays 1:1. Therefore the highest bet is a blackjack MAX_BET. the server should not pay any values higher than that
+            int payoutmax = (int)MAX_BET * (3 / 2) + MAX_BET;
+            if(amt < MIN_BET || amt > payoutmax)
+            {
+                Console.WriteLine("Tried to desposit an invalid amount: " + amt);
+                return;
+            }
+            else
+            {
+                p.Chips = p.Chips + amt;
+                Communicate(p, $"deposit {amt} {p.Chips}");
+            }
+        }
+
+        private void Withdraw(Player p, int amt)
+        {
+            Console.WriteLine(amt);
+            if (amt < MIN_BET || amt > MAX_BET)
+            {
+                Console.WriteLine("Tried to withdraw an invalid amount: " + amt);
+                return;
+            }
+            else
+            {
+                int temp = p.Chips;
+                if (temp - amt < 0)
+                {
+                    Console.WriteLine("Tried to withdraw an invalid amount: " + amt);
+                    return;
+                }    
+                p.Chips = p.Chips - amt;
+                Communicate(p, $"withdraw {amt} {p.Chips}");
             }
         }
 

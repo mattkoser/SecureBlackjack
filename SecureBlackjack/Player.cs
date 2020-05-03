@@ -16,6 +16,7 @@ namespace SecureBlackjack
         public bool Bust { get; set; }
         public int Count { get; set; }
         public bool Won { get; set; }
+        public int Bet { get; set; }
         public Player(String name)
         {
             Name = name;
@@ -32,6 +33,7 @@ namespace SecureBlackjack
             Bust = false;
             Done = false;
             Won = false;
+            Bet = 0;
        }
 
         public void DealCard(Card c)

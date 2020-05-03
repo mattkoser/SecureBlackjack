@@ -79,7 +79,7 @@ namespace SecureBlackjack
                     Console.WriteLine($"Your hand value: {message[1]}\nDealer's Hand: {message[2]}");
                     break;
                 case "bust":
-                    Console.WriteLine($"You have BUSTED! (Hand value: {message[1]})");
+                    Console.WriteLine($"You have BUSTED with hand value {message[1]}");
                     break;
                 case "pushblackjack":
                     Console.WriteLine($"The dealer and you have both been dealt blackjack. The hand has been pushed. ");
@@ -93,7 +93,7 @@ namespace SecureBlackjack
                     Console.WriteLine($"The dealer has drawn a {message[1]} of {message[2]}. The dealers hand is now {message[3]}");
                     break;
                 case "lose":
-                    Console.WriteLine("The dealer has beaten you.");
+                    Console.WriteLine("The dealer has beaten you. You recieve no chips.");
                     break;
                 case "push":
                     Console.WriteLine("You have tied the dealer. The hand is pushed.");
@@ -104,8 +104,26 @@ namespace SecureBlackjack
                 case "dealerblackjack":
                     Console.WriteLine("The dealer has been dealt blackjack, ending the hand.");
                     break;
+                case "newround":
+                    Console.WriteLine("A new round is starting!");
+                    break;
                 case "stood":
                     Console.WriteLine("You have chosen to stand. Please wait.");
+                    break;
+                case "deposit":
+                    Console.WriteLine($"{message[1]} chips have been depositied into your balance. Your new balance is {message[2]}");
+                    break;
+                case "withdraw":
+                    Console.WriteLine($"{message[1]} chips have been withdrawn into your balance. Your new balance is {message[2]}");
+                    break;
+                case "badbet":
+                    Console.WriteLine($"The bet you have entered is invalid. The bet limits are: {message[1]} to {message[2]}");
+                    break;
+                case "inputbet":
+                    Console.WriteLine($"Its your turn to bet. Your balance is currently {message[1]}. Please enter an integer between {message[2]} and {message[3]}");
+                    break;
+                case "outofchips":
+                    Console.WriteLine("Oh no, you have ran out of chips! You have been given more.");
                     break;
                 default:
                     Console.WriteLine("No valid message has been detected...");
