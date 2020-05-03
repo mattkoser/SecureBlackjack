@@ -55,14 +55,11 @@ namespace SecureBlackjack
             //Securely choose a number between 0 to n-1, n-2, n-3...
             //Push the card that exists at that position into the "stack" of cards and remove. Rinse and repeat until no cards are left in the raw deck.
             int cardChoice;
-            int count2 = 0;
             while(raw.Count > 0)
             {   
                 cardChoice = RandomNumberGenerator.GetInt32(0, raw.Count); //Choose a random card and put it in our final stack. RandomNumberGenerator is derived from System.Security.Cryptography
                 shuffled.Push(raw[cardChoice]);
                 raw.RemoveAt(cardChoice);
-
-                count2++;
             }
         }
 
