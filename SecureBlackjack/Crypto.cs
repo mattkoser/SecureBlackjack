@@ -20,7 +20,7 @@ namespace SecureBlackjack
 
             try  
             {
-                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())  
+                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(2048))  
                 {  
                     RSA.ImportParameters(RSAKey);  
                         encryptedData = RSA.Encrypt(plainText, DoOAEPPadding);  
@@ -43,7 +43,7 @@ namespace SecureBlackjack
             try  
             {  
                 byte[] decryptedData;
-                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(2048))
                 {  
                     RSA.ImportParameters(RSAKey);  
                         decryptedData = RSA.Decrypt(encryptedData, DoOAEPPadding);  
