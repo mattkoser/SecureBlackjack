@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography;
 namespace SecureBlackjack
@@ -7,11 +6,13 @@ namespace SecureBlackjack
     class Encryption //Symmetric Key Encryption / Decryption
     {
         static RSACryptoServiceProvider RSA;
-        static CspParameters key;
-        public Encryption(CspParameters cp)
+        static RSAParameters rsaPubKey;
+        static RSAParameters rsaPrivKey;
+        public Encryption(RSAParameters privKey, RSAParameters pubKey)
         {
-            RSA = new RSACryptoServiceProvider(cp);
-            key = cp;
+            rsaPrivKey = privKey;
+            rsaPubKey = pubKey;
+            RSA = new RSACryptoServiceProvider();
         }
 
         public String Encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
@@ -23,9 +24,9 @@ namespace SecureBlackjack
 
             try
             {
-                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(key))  
+                using(RSA)  
                 {  
-                    RSA.ImportParameters(RSAKey);  
+                    RSA.ImportParameters(rsaPubKey);  
                         encryptedData = RSA.Encrypt(plainText, DoOAEPPadding);  
                 }
                 cipherText = Encoding.ASCII.GetString(encryptedData);
@@ -46,9 +47,9 @@ namespace SecureBlackjack
             try  
             {  
                 byte[] decryptedData;
-                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(key))
+                using(RSA)
                 {  
-                    RSA.ImportParameters(RSAKey);  
+                    RSA.ImportParameters(rsaPrivKey);  
                         decryptedData = RSA.Decrypt(encryptedData, DoOAEPPadding);  
                 }
                 decryptedText = Encoding.ASCII.GetString(decryptedData); 
