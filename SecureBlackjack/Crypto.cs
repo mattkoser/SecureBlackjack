@@ -6,7 +6,10 @@ namespace SecureBlackjack
 {
     class Encryption //Symmetric Key Encryption / Decryption
     {
-        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        public Encryption()
+        {
+            RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(2048);
+        }
 
         public String Encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
         {
