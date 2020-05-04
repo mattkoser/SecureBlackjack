@@ -55,7 +55,6 @@ namespace SecureBlackjack
                 }
                 Console.ReadKey();
             }
-
         }
 
         private void Deal(Player p)
