@@ -8,7 +8,8 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        Encryption Encryptor = new Encryption();
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -17,14 +18,15 @@ namespace SecureBlackjack
         bool DealerBust = false;
         const int MIN_BET = 1;
         const int MAX_BET = 100;
+
         public GameController()
         {
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
             WaitForPlayers();
         }
 
-
-        //Will call the game loop once all players are in.
+        //Loop that waits for players to register
+        //Will call the game loop once all players are in
         private void WaitForPlayers()
         {
             FileSystemWatcher playerListen = new FileSystemWatcher();
@@ -113,11 +115,9 @@ namespace SecureBlackjack
                         break; //while loop one too many times
                     Thread.Sleep(200);
                 }
-                
 
                 if (dv > 21)
                     DealerBust = true;
-
 
                 Thread.Sleep(300); //Things are going WAYY too fast for a player to digest. the sleeps help it feel mroe natural;
                 for (int i = 0; i < Players.Count; i++)
@@ -125,7 +125,7 @@ namespace SecureBlackjack
                     int playerVal = GetHandValue(Players[i].hand);
                     int dealerVal = GetHandValue(Hand);
                     int payout = 0;
-                    if (Players[i].Bust) //Players can't win if they bsut
+                    if (Players[i].Bust) //Players can't win if they bust
                     {
                         Communicate(Players[i], "lose "); //No credits on loss
                         continue;
@@ -172,7 +172,6 @@ namespace SecureBlackjack
                 SendToAll("newround ");
                 ResetGame();
             }
-
         }
         private void ResetGame()
         {
@@ -184,7 +183,7 @@ namespace SecureBlackjack
             }
         }
 
-        private void SendToAll(String m)
+        private void SendToAll(String m) //Sends a message to all players
         {
             for(int i = 0; i < Players.Count; i++)
             {
@@ -337,7 +336,6 @@ namespace SecureBlackjack
             }
             return value;
         }
-
         private void Turn(object sender, FileSystemEventArgs e) //Gets turn from player
         {
             Thread.Sleep(50);
@@ -356,7 +354,6 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-
 
             line = line.ToLower();
 
@@ -388,7 +385,6 @@ namespace SecureBlackjack
             }
             
         }
-
 
        private void Deal(Player p)
         {
@@ -444,17 +440,14 @@ namespace SecureBlackjack
 
         private void Communicate(Player p, String message)
         {
-            Encryption RSA = new Encryption();
-            //ALAN - encrypt message for player p 
-            //RSA.Encrypt(message, RSA.ExportParameters(false), false);
+            String data = Encryptor.Encrypt(message, RSA.ExportParameters(false), false);
             p.Count = p.Count + 1;
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
             Thread.Sleep(100);
             using(StreamWriter s = File.CreateText(destination))
             {
-                s.WriteLine(message);
+                s.WriteLine(data);
             }
-
         }
     }
 }

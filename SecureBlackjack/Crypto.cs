@@ -6,12 +6,14 @@ namespace SecureBlackjack
 {
     class Encryption //Symmetric Key Encryption / Decryption
     {
-        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-        public byte[] Encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
+        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+
+        public String Encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
         {
             byte[] plainText;
             byte[] encryptedData;
             plainText = Encoding.ASCII.GetBytes(s);
+            String cipherText;
 
             try  
             {
@@ -19,8 +21,9 @@ namespace SecureBlackjack
                 {  
                     RSA.ImportParameters(RSAKey);  
                         encryptedData = RSA.Encrypt(plainText, DoOAEPPadding);  
-                }        
-                return encryptedData;
+                }
+                cipherText = Encoding.ASCII.GetString(encryptedData);
+                return cipherText;
             }  
             catch (CryptographicException e)  
             {  
@@ -29,9 +32,10 @@ namespace SecureBlackjack
             }
         }
 
-        public String Decrypt(byte[]Data, RSAParameters RSAKey, bool DoOAEPPadding)  
+        public String Decrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding)  
         {  
             String decryptedText;
+            byte[] encryptedData = Encoding.ASCII.GetBytes(s);
 
             try  
             {  
@@ -39,7 +43,7 @@ namespace SecureBlackjack
                 using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
                 {  
                     RSA.ImportParameters(RSAKey);  
-                        decryptedData = RSA.Decrypt(Data, DoOAEPPadding);  
+                        decryptedData = RSA.Decrypt(encryptedData, DoOAEPPadding);  
                 }
                 decryptedText = Encoding.ASCII.GetString(decryptedData); 
                 return decryptedText;
@@ -49,14 +53,6 @@ namespace SecureBlackjack
                 Console.WriteLine(e.ToString());
                 return null;
             }
-        }
-    }
-
-    class Authentication
-    {
-        public void authecticate(String player, String privateKey)
-        {
-            Console.WriteLine("Enter Username: ");
         }
     }
 }

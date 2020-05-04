@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Security.Cryptography;
 
 namespace SecureBlackjack
 {
     class Client
     {
+        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         static int count = 0;
         static string name;
         static string RegStatus = "notreg";
@@ -30,6 +32,7 @@ namespace SecureBlackjack
             listener.EnableRaisingEvents = true;
             listener.Created += Recieved;
             listener.IncludeSubdirectories = true;
+
             while(!Started) //will not start accepting input until the game starts
             {
                 continue;
@@ -40,11 +43,11 @@ namespace SecureBlackjack
                 end = Console.ReadLine();
                 Communicate(end);
             }
-
         }
 
         private static void Recieved(object sender, FileSystemEventArgs e)
         {
+            Encryption Encryptor = new Encryption();
             String line = "";
             Thread.Sleep(50);
             try
@@ -59,8 +62,8 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-
-            String[] message = line.Split(' ');
+            String decryptedData = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
+            String[] message = decryptedData.Split(' ');
             Console.WriteLine("\n_____________________________________________________________\n");
             switch(message[0]) //first word is the "command"
             {
