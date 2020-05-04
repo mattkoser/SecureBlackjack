@@ -6,9 +6,9 @@ namespace SecureBlackjack
 {
     class Encryption //Symmetric Key Encryption / Decryption
     {
-        public Encryption()
+        public Encryption(CspParameters cp)
         {
-            RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(2048);
+            RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(cp);
         }
 
         public String Encrypt(String s, RSAParameters RSAKey, bool DoOAEPPadding) //Takes in a String s and encrypts is using a key
@@ -20,7 +20,7 @@ namespace SecureBlackjack
 
             try  
             {
-                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(2048))  
+                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())  
                 {  
                     RSA.ImportParameters(RSAKey);  
                         encryptedData = RSA.Encrypt(plainText, DoOAEPPadding);  
@@ -43,7 +43,7 @@ namespace SecureBlackjack
             try  
             {  
                 byte[] decryptedData;
-                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(2048))
+                using(RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
                 {  
                     RSA.ImportParameters(RSAKey);  
                         decryptedData = RSA.Decrypt(encryptedData, DoOAEPPadding);  

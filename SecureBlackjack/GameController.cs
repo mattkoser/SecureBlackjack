@@ -9,7 +9,11 @@ namespace SecureBlackjack
     class GameController
     {
         static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-        Encryption Encryptor = new Encryption();
+        static CspParameters cp;
+        //RSAParameters rsaPubKey = RSA.ExportParameters(false); Way to remember which key is which
+        //RSAParameters rsaPrivKey = RSA.ExportParameters(true);
+        Encryption Encryptor = new Encryption(cp);
+
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -19,8 +23,9 @@ namespace SecureBlackjack
         const int MIN_BET = 1;
         const int MAX_BET = 100;
 
-        public GameController()
+        public GameController(CspParameters key)
         {
+            cp = key;
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
             WaitForPlayers();
         }
@@ -217,7 +222,7 @@ namespace SecureBlackjack
 
         private void NewBet(object sender, FileSystemEventArgs e) //Gets turn from player
         {
-            Encryption Encryptor = new Encryption();
+            Encryption Encryptor = new Encryption(cp);
             Thread.Sleep(50);
             String line = "";
             try
@@ -341,7 +346,7 @@ namespace SecureBlackjack
         }
         private void Turn(object sender, FileSystemEventArgs e) //Gets turn from player
         {
-            Encryption Encryptor = new Encryption();
+            Encryption Encryptor = new Encryption(cp);
             Thread.Sleep(50);
             String line = "";
             String data;
@@ -406,7 +411,7 @@ namespace SecureBlackjack
 
         private void NewPlayer(object sender, FileSystemEventArgs e)
         {
-            Encryption Encryptor = new Encryption();
+            Encryption Encryptor = new Encryption(cp);
             Thread.Sleep(400);
             String line = "";
             try

@@ -7,7 +7,8 @@ namespace SecureBlackjack
 {
     class Client
     {
-        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        static CspParameters cp = new CspParameters();
+        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider(cp);
         static int count = 0;
         static string name;
         static string RegStatus = "notreg";
@@ -47,7 +48,7 @@ namespace SecureBlackjack
 
         private static void Recieved(object sender, FileSystemEventArgs e)
         {
-            Encryption Encryptor = new Encryption();
+            Encryption Encryptor = new Encryption(cp);
             String line = "";
             Thread.Sleep(50);
             try
@@ -141,7 +142,7 @@ namespace SecureBlackjack
             name = Console.ReadLine();
             if (name.ToUpper().Equals("CONTROLLER"))
             {
-                GameController controller = new GameController(); //This redirects all of the logic to the gamecontroller object. When it finishes in the controller, the program exits
+                GameController controller = new GameController(cp); //This redirects all of the logic to the gamecontroller object. When it finishes in the controller, the program exits
                 Environment.Exit(0);
             }
             String folder = @"C:\Blackjack";
@@ -180,7 +181,7 @@ namespace SecureBlackjack
 
         private static void ConfirmRegister(object sender, FileSystemEventArgs e)
         {
-            Encryption Encryptor = new Encryption();
+            Encryption Encryptor = new Encryption(cp);
             String data = "";
             String line;
             Thread.Sleep(50);
@@ -203,7 +204,7 @@ namespace SecureBlackjack
 
         private static void Communicate(String message)
         {
-            Encryption Encryptor = new Encryption();
+            Encryption Encryptor = new Encryption(cp);
             String data = Encryptor.Encrypt(message, RSA.ExportParameters(false), false);
             String destination;
             if(count == 0) //The first message needs to be placed in the main directory of controller
