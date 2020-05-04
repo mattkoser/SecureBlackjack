@@ -217,6 +217,7 @@ namespace SecureBlackjack
 
         private void NewBet(object sender, FileSystemEventArgs e) //Gets turn from player
         {
+            Encryption Encryptor = new Encryption();
             Thread.Sleep(50);
             String line = "";
             try
@@ -232,10 +233,12 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
+
+            String data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
             int bet;
             try
             {
-                bet = Int32.Parse(line);
+                bet = Int32.Parse(data);
             }
             catch (Exception g) //Usually when the input is not a valid integer
             {
@@ -338,8 +341,10 @@ namespace SecureBlackjack
         }
         private void Turn(object sender, FileSystemEventArgs e) //Gets turn from player
         {
+            Encryption Encryptor = new Encryption();
             Thread.Sleep(50);
             String line = "";
+            String data;
             try
             {   // Open the text file using a stream reader.
                 using (StreamReader sr = new StreamReader(e.FullPath))
@@ -355,9 +360,10 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            line = line.ToLower();
+            data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
+            data = data.ToLower();
 
-            switch (line)
+            switch (data)
             {
                 case "h":
                 case "hit":
@@ -400,6 +406,7 @@ namespace SecureBlackjack
 
         private void NewPlayer(object sender, FileSystemEventArgs e)
         {
+            Encryption Encryptor = new Encryption();
             Thread.Sleep(400);
             String line = "";
             try
@@ -433,7 +440,9 @@ namespace SecureBlackjack
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-            Player newPlayer = new Player(line);
+
+            String data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
+            Player newPlayer = new Player(data);
             Communicate(newPlayer, "good"); //Validate player name and send "bad" if their name does not fit criteria
             Players.Add(newPlayer); //only if name is "good"
         }
