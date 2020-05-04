@@ -218,5 +218,4 @@ namespace SecureBlackjack
             count++;
         }
     }
-
 }
