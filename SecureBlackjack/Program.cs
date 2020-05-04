@@ -48,7 +48,7 @@ namespace SecureBlackjack
                 Communicate(end);
             }
         }
-
+        
         private static void Recieved(object sender, FileSystemEventArgs e)
         {
             String line = "";

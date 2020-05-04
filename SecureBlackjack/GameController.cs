@@ -356,7 +356,7 @@ namespace SecureBlackjack
                 {
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    line = line.Remove(line.Length-2); // get rid of new line escape char 
+                    //line = line.Remove(line.Length-2); // get rid of new line escape char 
                 }
             }
             catch (IOException f)
@@ -420,7 +420,6 @@ namespace SecureBlackjack
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
                     line = line.Remove(line.Length-2); // get rid of new line escape char
-                    Console.WriteLine($"{line} has been registered!");
                 }
             }
             catch (IOException f)
@@ -428,11 +427,13 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
+
             String folder = @"C:\Blackjack";
             String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
             String data = Encryptor.Decrypt(line, rsaPrivKey, false);
+            Console.WriteLine($"{data} has been registered!");
             Console.WriteLine("Decrypted data: " + data);
             try
             {

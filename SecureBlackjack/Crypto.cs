@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Security.Cryptography;
+
 namespace SecureBlackjack
 {
     class Encryption //Symmetric Key Encryption / Decryption
