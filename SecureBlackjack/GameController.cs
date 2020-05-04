@@ -44,7 +44,6 @@ namespace SecureBlackjack
             Console.ReadKey();
             playerListen.Dispose();
             GameLoop();
-
         }
 
         private void GameLoop()
