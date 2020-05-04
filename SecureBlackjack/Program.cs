@@ -180,7 +180,9 @@ namespace SecureBlackjack
 
         private static void ConfirmRegister(object sender, FileSystemEventArgs e)
         {
-            String line = "";
+            Encryption Encryptor = new Encryption();
+            String data = "";
+            String line;
             Thread.Sleep(50);
             try
             {
@@ -188,6 +190,7 @@ namespace SecureBlackjack
                 {
                     line = sr.ReadToEnd();
                     line = line.Remove(line.Length - 2); // get rid of new line escape char 
+                    data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
                 }
             }
             catch (IOException f)
@@ -195,15 +198,13 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            RegStatus = line;
-            
+            RegStatus = data;
         }
-
-
 
         private static void Communicate(String message)
         {
-            //ALAN - Encrypt the message that is being sent to the controller
+            Encryption Encryptor = new Encryption();
+            String data = Encryptor.Encrypt(message, RSA.ExportParameters(false), false);
             String destination;
             if(count == 0) //The first message needs to be placed in the main directory of controller
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";
@@ -211,7 +212,7 @@ namespace SecureBlackjack
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\"  + "communication" + count.ToString() + ".txt";
             using (StreamWriter s = File.CreateText(destination))
             {
-                s.WriteLine(message);
+                s.WriteLine(data);
             }
             count++;
         }

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Matt\\source\\repos\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj": {}
+    "C:\\Users\\astan\\Documents\\GitHub\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Matt\\source\\repos\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj": {
+    "C:\\Users\\astan\\Documents\\GitHub\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Matt\\source\\repos\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj",
+        "projectUniqueName": "C:\\Users\\astan\\Documents\\GitHub\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj",
         "projectName": "SecureBlackjack",
-        "projectPath": "C:\\Users\\Matt\\source\\repos\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj",
-        "packagesPath": "C:\\Users\\Matt\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Matt\\source\\repos\\SecureBlackjack\\SecureBlackjack\\obj\\",
+        "projectPath": "C:\\Users\\astan\\Documents\\GitHub\\SecureBlackjack\\SecureBlackjack\\SecureBlackjack.csproj",
+        "packagesPath": "C:\\Users\\astan\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\astan\\Documents\\GitHub\\SecureBlackjack\\SecureBlackjack\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Matt\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\astan\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
