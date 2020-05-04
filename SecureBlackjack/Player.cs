@@ -12,19 +12,29 @@ namespace SecureBlackjack
         public string Folder { get; }
         public string Name;
         public List<Card> hand = new List<Card>();
+        public bool Done { get; set; }
+        public bool Bust { get; set; }
         public int Count { get; set; }
+        public bool Won { get; set; }
+        public int Bet { get; set; }
         public Player(String name)
         {
             Name = name;
             Folder = @"C:\Blackjack\" + name.ToUpper();
             Chips = 500; //Starting amount
+            Done = false;
             Count = 0;
+            Won = false;
         }
 
-        private void Wait()
-        {
-
-        }
+       public void Reset()
+       {
+            hand.Clear();
+            Bust = false;
+            Done = false;
+            Won = false;
+            Bet = 0;
+       }
 
         public void DealCard(Card c)
         {
@@ -34,14 +44,5 @@ namespace SecureBlackjack
         {
             return hand;
         }
-
-
-
-        private void Recieved(object source, FileSystemEventArgs file)
-        {
-
-        }
-
-
     }
 }

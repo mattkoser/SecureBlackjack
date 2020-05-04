@@ -23,7 +23,7 @@ namespace SecureBlackjack
             {
                 case "Ace":
                     cardTemplate = " _____ \n|A    |\n|     |\n|  X  |\n|     |\n|____A|";
-                    Val = 1; //The "or 11" is handled in the calculations later
+                    Val = 11; //The "or 1" is handled in the calculations later
                     break;
                 case "Two":
                     cardTemplate = " _____ \n|2    |\n|  X  |\n|     |\n|  X  |\n|____2|";
