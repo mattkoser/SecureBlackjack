@@ -20,7 +20,7 @@ namespace SecureBlackjack
         public Player(String name)
         {
             Name = name;
-            Folder = @"C:\Blackjack\" + name.ToUpper();
+            Folder = @"D:\Blackjack\" + name.ToUpper();
             Chips = 500; //Starting amount
             Done = false;
             Count = 0;

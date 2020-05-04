@@ -35,7 +35,7 @@ namespace SecureBlackjack
         private void WaitForPlayers()
         {
             FileSystemWatcher playerListen = new FileSystemWatcher();
-            playerListen.Path = @"C:\Blackjack\CONTROLLER";
+            playerListen.Path = @"D:\Blackjack\CONTROLLER";
             playerListen.Filter = "*.txt";
             playerListen.EnableRaisingEvents = true;
             playerListen.Created += NewPlayer;
@@ -206,7 +206,7 @@ namespace SecureBlackjack
             }
             Console.WriteLine($"It is now {p.Name}'s turn.");
             FileSystemWatcher betListen = new FileSystemWatcher();
-            string watcherPath = @"C:\Blackjack\CONTROLLER\" + p.Name.ToUpper();
+            string watcherPath = @"D:\Blackjack\CONTROLLER\" + p.Name.ToUpper();
             betListen.Path = watcherPath;
             betListen.Filter = "*.txt";
             betListen.EnableRaisingEvents = true;
@@ -303,7 +303,7 @@ namespace SecureBlackjack
         {
             Console.WriteLine($"It is now {p.Name}'s turn.");
             FileSystemWatcher turnListen = new FileSystemWatcher();
-            string watcherPath = @"C:\Blackjack\CONTROLLER\" + p.Name.ToUpper();
+            string watcherPath = @"D:\Blackjack\CONTROLLER\" + p.Name.ToUpper();
             turnListen.Path = watcherPath;
             turnListen.Filter = "*.txt";
             turnListen.EnableRaisingEvents = true;
@@ -429,8 +429,8 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            String folder = @"C:\Blackjack";
-            String otherFolder = @"C:\Blackjack\CONTROLLER";
+            String folder = @"D:\Blackjack";
+            String otherFolder = @"D:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
             try

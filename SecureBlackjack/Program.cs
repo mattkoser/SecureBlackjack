@@ -28,7 +28,7 @@ namespace SecureBlackjack
             Console.WriteLine("You have been registered! Welcome to the game, please wait for your turn.");
             FileSystemWatcher listener = new FileSystemWatcher();
             Thread.Sleep(200);
-            listener.Path = @"C:\Blackjack\" + name.ToUpper();
+            listener.Path = @"D:\Blackjack\" + name.ToUpper();
             listener.Filter = "*.txt";
             listener.EnableRaisingEvents = true;
             listener.Created += Recieved;
@@ -145,7 +145,7 @@ namespace SecureBlackjack
                 GameController controller = new GameController(cp); //This redirects all of the logic to the gamecontroller object. When it finishes in the controller, the program exits
                 Environment.Exit(0);
             }
-            String folder = @"C:\Blackjack";
+            String folder = @"D:\Blackjack";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             FileSystemWatcher registerListen = new FileSystemWatcher();
             try
@@ -160,7 +160,7 @@ namespace SecureBlackjack
             }
             Thread.Sleep(350);
             Communicate(name);
-            string path = @"C:\Blackjack\" + name.ToUpper();
+            string path = @"D:\Blackjack\" + name.ToUpper();
             registerListen.Path = path;
             registerListen.Filter = "*.txt";
             registerListen.EnableRaisingEvents = true;
@@ -208,9 +208,9 @@ namespace SecureBlackjack
             String data = Encryptor.Encrypt(message, RSA.ExportParameters(false), false);
             String destination;
             if(count == 0) //The first message needs to be placed in the main directory of controller
-                destination = @"C:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";
+                destination = @"D:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";
             else
-                destination = @"C:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\"  + "communication" + count.ToString() + ".txt";
+                destination = @"D:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\"  + "communication" + count.ToString() + ".txt";
             using (StreamWriter s = File.CreateText(destination))
             {
                 s.WriteLine(data);
