@@ -8,8 +8,12 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-        Encryption Encryptor = new Encryption();
+        static RSACryptoServiceProvider RSA;
+        static RSAParameters rsaPrivKey;
+        static RSAParameters rsaPubKey;
+       
+        static Encryption Encryptor;
+
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -19,10 +23,14 @@ namespace SecureBlackjack
         const int MIN_BET = 1;
         const int MAX_BET = 100;
 
-        public GameController()
+        public GameController(RSAParameters privKey, RSAParameters pubKey)
         {
+            rsaPrivKey = privKey;
+            rsaPubKey = pubKey;
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
             WaitForPlayers();
+            RSA = new RSACryptoServiceProvider();
+            Encryptor = new Encryption(rsaPrivKey, rsaPrivKey);
         }
 
         //Loop that waits for players to register
@@ -39,7 +47,6 @@ namespace SecureBlackjack
             Console.ReadKey();
             playerListen.Dispose();
             GameLoop();
-
         }
 
         private void GameLoop()
@@ -217,7 +224,6 @@ namespace SecureBlackjack
 
         private void NewBet(object sender, FileSystemEventArgs e) //Gets turn from player
         {
-            Encryption Encryptor = new Encryption();
             Thread.Sleep(50);
             String line = "";
             try
@@ -234,11 +240,11 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            String data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
+            String data = Encryptor.Decrypt(line, rsaPrivKey, false);
             int bet;
             try
             {
-                bet = Int32.Parse(data);
+                bet = Int32.Parse(line);
             }
             catch (Exception g) //Usually when the input is not a valid integer
             {
@@ -341,7 +347,6 @@ namespace SecureBlackjack
         }
         private void Turn(object sender, FileSystemEventArgs e) //Gets turn from player
         {
-            Encryption Encryptor = new Encryption();
             Thread.Sleep(50);
             String line = "";
             String data;
@@ -351,7 +356,7 @@ namespace SecureBlackjack
                 {
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    line = line.Remove(line.Length-2); // get rid of new line escape char 
+                    //line = line.Remove(line.Length-2); // get rid of new line escape char 
                 }
             }
             catch (IOException f)
@@ -360,7 +365,7 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
+            data = Encryptor.Decrypt(line, rsaPrivKey, false);
             data = data.ToLower();
 
             switch (data)
@@ -406,7 +411,6 @@ namespace SecureBlackjack
 
         private void NewPlayer(object sender, FileSystemEventArgs e)
         {
-            Encryption Encryptor = new Encryption();
             Thread.Sleep(400);
             String line = "";
             try
@@ -416,7 +420,6 @@ namespace SecureBlackjack
                     // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
                     line = line.Remove(line.Length-2); // get rid of new line escape char
-                    Console.WriteLine($"{line} has been registered!");
                 }
             }
             catch (IOException f)
@@ -424,15 +427,17 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
+
             String folder = @"C:\Blackjack";
             String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
+            Console.WriteLine($"{data} has been registered!");
+            Console.WriteLine("Decrypted data: " + data);
             try
             {
-                folderMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
-                otherMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
-
+                folderMaker.CreateSubdirectory(data.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
+                otherMaker.CreateSubdirectory(data.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
             }
             catch (Exception f)
             {
@@ -440,8 +445,6 @@ namespace SecureBlackjack
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-
-            String data = Encryptor.Decrypt(line, RSA.ExportParameters(true), false);
             Player newPlayer = new Player(data);
             Communicate(newPlayer, "good"); //Validate player name and send "bad" if their name does not fit criteria
             Players.Add(newPlayer); //only if name is "good"
@@ -449,7 +452,6 @@ namespace SecureBlackjack
 
         private void Communicate(Player p, String message)
         {
-            String data = Encryptor.Encrypt(message, RSA.ExportParameters(false), false);
             p.Count = p.Count + 1;
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
             Thread.Sleep(100);
