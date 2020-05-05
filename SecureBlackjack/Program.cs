@@ -11,6 +11,7 @@ namespace SecureBlackjack
         static string name;
         static string RegStatus = "notreg";
         static bool Started = false;
+        Signing sign = new Signing();
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
