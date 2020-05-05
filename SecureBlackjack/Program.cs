@@ -7,11 +7,6 @@ namespace SecureBlackjack
 {
     class Client
     {
-        /*static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-        static RSAParameters rsaPrivKey = RSA.ExportParameters(true);
-        static RSAParameters rsaPubKey = RSA.ExportParameters(false);
-        static Encryption Encryptor = new Encryption(rsaPrivKey, rsaPubKey);*/
-        
         static int count = 0;
         static string name;
         static string RegStatus = "notreg";
@@ -65,7 +60,6 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            //String decryptedData = Encryptor.Decrypt(line, rsaPrivKey, false);
             String[] message = line.Split(' ');
             Console.WriteLine("\n_____________________________________________________________\n");
             switch(message[0]) //first word is the "command"
@@ -183,7 +177,6 @@ namespace SecureBlackjack
 
         private static void ConfirmRegister(object sender, FileSystemEventArgs e)
         {
-            //String data = "";
             String line = "";
             Thread.Sleep(50);
             try
@@ -191,8 +184,7 @@ namespace SecureBlackjack
                 using (StreamReader sr = new StreamReader(e.FullPath))
                 {
                     line = sr.ReadToEnd();
-                    line = line.Remove(line.Length - 2); // get rid of new line escape char 
-                    //data = Encryptor.Decrypt(line, rsaPrivKey, false);
+                    line = line.Remove(line.Length - 2); // get rid of new line escape char
                 }
             }
             catch (IOException f)
@@ -205,7 +197,6 @@ namespace SecureBlackjack
 
         private static void Communicate(String message)
         {
-            //String data = Encryptor.Encrypt(message, rsaPubKey, false);
             String destination;
             if(count == 0) //The first message needs to be placed in the main directory of controller
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";

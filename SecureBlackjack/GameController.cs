@@ -8,12 +8,6 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        /*static RSACryptoServiceProvider RSA;
-        static RSAParameters rsaPrivKey;
-        static RSAParameters rsaPubKey;
-       
-        static Encryption Encryptor;*/
-
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -25,12 +19,8 @@ namespace SecureBlackjack
 
         public GameController()
         {
-            /*rsaPrivKey = privKey;
-            rsaPubKey = pubKey;*/
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
             WaitForPlayers();
-            /*RSA = new RSACryptoServiceProvider();
-            Encryptor = new Encryption(rsaPrivKey, rsaPrivKey);*/
         }
 
         //Loop that waits for players to register
@@ -240,7 +230,6 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            /*String data = Encryptor.Decrypt(line, rsaPrivKey, false);*/
             int bet;
             try
             {
@@ -265,7 +254,6 @@ namespace SecureBlackjack
 
         private void DepositCredits(Player p, int amt)
         {
-            //Blackjack pays out 3:2, win pays 1:1. Therefore the highest bet is a blackjack MAX_BET. the server should not pay any values higher than that
             int payoutmax = (int)MAX_BET * (3 / 2) + MAX_BET;
             if(amt < MIN_BET || amt > payoutmax)
             {
@@ -349,14 +337,12 @@ namespace SecureBlackjack
         {
             Thread.Sleep(50);
             String line = "";
-            //String data;
             try
             {   // Open the text file using a stream reader.
                 using (StreamReader sr = new StreamReader(e.FullPath))
                 {
-                    // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    line = line.Remove(line.Length-2); // get rid of new line escape char 
+                    line = line.Remove(line.Length-2);
                 }
             }
             catch (IOException f)
@@ -364,9 +350,6 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-
-            //data = Encryptor.Decrypt(line, rsaPrivKey, false);
-            //data = data.ToLower();
 
             switch (line)
             {
@@ -427,7 +410,6 @@ namespace SecureBlackjack
             String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
-            //String data = Encryptor.Decrypt(line, rsaPrivKey, false);
             Console.WriteLine($"{line} has been registered!");
             try
             {
@@ -447,7 +429,6 @@ namespace SecureBlackjack
 
         private void Communicate(Player p, String message)
         {
-            //String data = Encryptor.Encrypt(message, rsaPubKey, false);
             p.Count = p.Count + 1;
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
             Thread.Sleep(100);
