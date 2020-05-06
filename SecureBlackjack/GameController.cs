@@ -18,6 +18,7 @@ namespace SecureBlackjack
         const int MAX_BET = 100;
         RSACryptoServiceProvider RSA;
         Signing Sign = new Signing();
+        List<String> times = new List<string>();
 
         public GameController()
         {
@@ -237,11 +238,23 @@ namespace SecureBlackjack
             string[] message = line.Split(' ');
             bool signed = false;
             signed = Sign.VerifySignedHash(message, Players[Current].Pubkey); //Verify against players publikey
+            bool spoof = false;
+            for (int i = 0; i < times.Count; i++)
+            {
+                if (times[i].Equals(message[message.Length - 2]))
+                    spoof = true;
+            }
             if (!signed)
             {
                 Console.WriteLine("Unsigned message detected! Ignoring...");
                 return;
             }
+            if(spoof)
+            {
+                Console.WriteLine("Something is wrong, recieved possibly spoofed message. Ignoring...");
+                return;
+            }
+            times.Add(message[message.Length - 2]);
             int bet;
             try
             {
@@ -366,11 +379,23 @@ namespace SecureBlackjack
             string[] message = line.Split(' ');
             bool signed = false;
             signed = Sign.VerifySignedHash(message, Players[Current].Pubkey); //Verify against players publikey
+            bool spoof = false;
+            for (int i = 0; i < times.Count; i++)
+            {
+                if (times[i].Equals(message[message.Length - 2]))
+                    spoof = true;
+            }
             if (!signed)
             {
                 Console.WriteLine("Invalid message detected!");
                 return;
             }
+            if(spoof)
+            {
+                Console.WriteLine("Something is wrong, recieved possibly spoofed message. Ignoring...");
+                return;
+            }
+            times.Add(message[message.Length - 2]);
 
             switch (message[0])
             {

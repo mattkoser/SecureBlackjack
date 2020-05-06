@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
+using System.Collections.Generic;
 
 namespace SecureBlackjack
 {
@@ -19,6 +20,7 @@ namespace SecureBlackjack
         private static bool HasKey = false;
         private static int c = 0;
         private static Signing signer = new Signing();
+        private static List<string> times = new List<string>();
 
         static void Main(string[] args)
         {
@@ -74,11 +76,23 @@ namespace SecureBlackjack
             String[] message = line.Split(' ');
             bool signed = false;
             signed = signer.VerifySignedHash(message, Server.ExportParameters(false)); //Verify against servers publikey
+            bool spoof = false;
+            for(int i = 0; i < times.Count; i++)
+            {
+                if (times[i].Equals(message[message.Length - 2]))
+                    spoof = true;
+            }
+            if(spoof)
+            {
+                Console.WriteLine("Something is wrong, recieved possibly spoofed message. Ignoring...");
+                return;
+            }
             if(!signed)
             {
                 Console.WriteLine("Unsigned message detected! Ignoring...");
                 return;
             }
+            times.Add(message[message.Length - 2]);
             Console.WriteLine("\n_____________________________________________________________\n");
             switch(message[0]) //first word is the "command"
             {

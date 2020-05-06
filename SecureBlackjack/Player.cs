@@ -17,6 +17,7 @@ namespace SecureBlackjack
         public int Count { get; set; }
         public bool Won { get; set; }
         public int Bet { get; set; }
+        List<string> times = new List<String>();
         RSACryptoServiceProvider RSA;
         public RSAParameters Pubkey { get; }
         public Player(String name, string XMLpubkey)
