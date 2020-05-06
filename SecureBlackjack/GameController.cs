@@ -8,12 +8,6 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        static RSACryptoServiceProvider RSA;
-        static RSAParameters rsaPrivKey;
-        static RSAParameters rsaPubKey;
-       
-        static Encryption Encryptor;
-
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -23,14 +17,10 @@ namespace SecureBlackjack
         const int MIN_BET = 1;
         const int MAX_BET = 100;
 
-        public GameController(RSAParameters privKey, RSAParameters pubKey)
+        public GameController()
         {
-            rsaPrivKey = privKey;
-            rsaPubKey = pubKey;
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
             WaitForPlayers();
-            RSA = new RSACryptoServiceProvider();
-            Encryptor = new Encryption(rsaPrivKey, rsaPrivKey);
         }
 
         //Loop that waits for players to register
@@ -240,7 +230,6 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            String data = Encryptor.Decrypt(line, rsaPrivKey, false);
             int bet;
             try
             {
@@ -265,7 +254,6 @@ namespace SecureBlackjack
 
         private void DepositCredits(Player p, int amt)
         {
-            //Blackjack pays out 3:2, win pays 1:1. Therefore the highest bet is a blackjack MAX_BET. the server should not pay any values higher than that
             int payoutmax = (int)MAX_BET * (3 / 2) + MAX_BET;
             if(amt < MIN_BET || amt > payoutmax)
             {
@@ -349,14 +337,12 @@ namespace SecureBlackjack
         {
             Thread.Sleep(50);
             String line = "";
-            String data;
             try
             {   // Open the text file using a stream reader.
                 using (StreamReader sr = new StreamReader(e.FullPath))
                 {
-                    // Read the stream to a string, and write the string to the console.
                     line = sr.ReadToEnd();
-                    //line = line.Remove(line.Length-2); // get rid of new line escape char 
+                    line = line.Remove(line.Length-2);
                 }
             }
             catch (IOException f)
@@ -365,10 +351,7 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            data = Encryptor.Decrypt(line, rsaPrivKey, false);
-            data = data.ToLower();
-
-            switch (data)
+            switch (line)
             {
                 case "h":
                 case "hit":
@@ -394,7 +377,6 @@ namespace SecureBlackjack
                     Communicate(Players[Current], "invalid ");
                     break;
             }
-            
         }
 
        private void Deal(Player p)
@@ -403,10 +385,6 @@ namespace SecureBlackjack
             p.DealCard(next);
             Console.WriteLine($"{p.Name} has been dealt a {next.Name} of {next.Suit}!");
             Communicate(p, "deal " + next.Name + " " + next.Suit);
-        }
-
-        private void BeginTurn(Player p)
-        {
         }
 
         private void NewPlayer(object sender, FileSystemEventArgs e)
@@ -432,12 +410,11 @@ namespace SecureBlackjack
             String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
-            Console.WriteLine($"{data} has been registered!");
-            Console.WriteLine("Decrypted data: " + data);
+            Console.WriteLine($"{line} has been registered!");
             try
             {
-                folderMaker.CreateSubdirectory(data.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
-                otherMaker.CreateSubdirectory(data.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
+                folderMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
+                otherMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
             }
             catch (Exception f)
             {
@@ -445,7 +422,7 @@ namespace SecureBlackjack
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-            Player newPlayer = new Player(data);
+            Player newPlayer = new Player(line);
             Communicate(newPlayer, "good"); //Validate player name and send "bad" if their name does not fit criteria
             Players.Add(newPlayer); //only if name is "good"
         }
@@ -457,7 +434,7 @@ namespace SecureBlackjack
             Thread.Sleep(100);
             using(StreamWriter s = File.CreateText(destination))
             {
-                s.WriteLine(data);
+                s.WriteLine(message);
             }
         }
     }

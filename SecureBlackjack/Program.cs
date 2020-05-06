@@ -7,16 +7,11 @@ namespace SecureBlackjack
 {
     class Client
     {
-        static RSACryptoServiceProvider RSA;
-        static RSAParameters rsaPrivKey;
-        static RSAParameters rsaPubKey;
-        static string rsaPubKeyXML;
-        static Encryption Encryptor = new Encryption(rsaPrivKey, rsaPubKey);
-        
         static int count = 0;
         static string name;
         static string RegStatus = "notreg";
         static bool Started = false;
+        Signing sign = new Signing();
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
@@ -66,8 +61,7 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            String decryptedData = Encryptor.Decrypt(line, rsaPrivKey, false);
-            String[] message = decryptedData.Split(' ');
+            String[] message = line.Split(' ');
             Console.WriteLine("\n_____________________________________________________________\n");
             switch(message[0]) //first word is the "command"
             {
@@ -145,14 +139,9 @@ namespace SecureBlackjack
             name = Console.ReadLine();
             if (name.ToUpper().Equals("CONTROLLER"))
             {
-                GameController controller = new GameController(rsaPrivKey, rsaPubKey); //This redirects all of the logic to the gamecontroller object. When it finishes in the controller, the program exits
+                GameController controller = new GameController(); //This redirects all of the logic to the gamecontroller object. When it finishes in the controller, the program exits
                 Environment.Exit(0);
             }
-            RSA = new RSACryptoServiceProvider();
-            rsaPubKey = RSA.ExportParameters(false);
-            rsaPrivKey = RSA.ExportParameters(true);
-            rsaPubKeyXML = RSA.ToXmlString(false);
-            Console.WriteLine(rsaPubKeyXML);
             String folder = @"C:\Blackjack";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             FileSystemWatcher registerListen = new FileSystemWatcher();
@@ -189,16 +178,14 @@ namespace SecureBlackjack
 
         private static void ConfirmRegister(object sender, FileSystemEventArgs e)
         {
-            String data = "";
-            String line;
+            String line = "";
             Thread.Sleep(50);
             try
             {
                 using (StreamReader sr = new StreamReader(e.FullPath))
                 {
                     line = sr.ReadToEnd();
-                    line = line.Remove(line.Length - 2); // get rid of new line escape char 
-                    data = Encryptor.Decrypt(line, rsaPrivKey, false);
+                    line = line.Remove(line.Length - 2); // get rid of new line escape char
                 }
             }
             catch (IOException f)
@@ -206,12 +193,11 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-            RegStatus = data;
+            RegStatus = line;
         }
 
         private static void Communicate(String message)
         {
-            String data = Encryptor.Encrypt(message, rsaPubKey, false);
             String destination;
             if(count == 0) //The first message needs to be placed in the main directory of controller
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";
@@ -219,7 +205,7 @@ namespace SecureBlackjack
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\"  + "communication" + count.ToString() + ".txt";
             using (StreamWriter s = File.CreateText(destination))
             {
-                s.WriteLine(data);
+                s.WriteLine(message);
             }
             count++;
         }
