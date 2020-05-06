@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
+using System.Security.Cryptography;
 namespace SecureBlackjack
 {
     class Player
@@ -17,7 +17,9 @@ namespace SecureBlackjack
         public int Count { get; set; }
         public bool Won { get; set; }
         public int Bet { get; set; }
-        public Player(String name)
+        RSACryptoServiceProvider RSA;
+        public RSAParameters Pubkey { get; }
+        public Player(String name, string XMLpubkey)
         {
             Name = name;
             Folder = @"C:\Blackjack\" + name.ToUpper();
@@ -25,6 +27,16 @@ namespace SecureBlackjack
             Done = false;
             Count = 0;
             Won = false;
+            RSA = new RSACryptoServiceProvider();
+            try
+            {
+                RSA.FromXmlString(XMLpubkey);
+                Pubkey = RSA.ExportParameters(false);
+            }
+            catch(CryptographicException)
+            {
+                Console.WriteLine($"There was an error parsing {name}'s key file.");
+            }
         }
 
        public void Reset()

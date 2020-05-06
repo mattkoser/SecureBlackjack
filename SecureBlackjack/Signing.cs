@@ -6,24 +6,21 @@ namespace SecureBlackjack
 {
     class Signing
     {
-        public static String HashAndSignBytes(String s, RSAParameters Key)
+        public String HashAndSignBytes(String s, RSAParameters Key)
         {
+            ASCIIEncoding ByteConverter = new ASCIIEncoding();
             String result;
-            byte[] bytes = Encoding.ASCII.GetBytes(s);
+            byte[] bytes = ByteConverter.GetBytes(s);
             byte[] signResult;
 
             try
             {
-                // Create a new instance of RSACryptoServiceProvider using the
-                // key from RSAParameters.
-                RSACryptoServiceProvider RSAalg = new RSACryptoServiceProvider();
-
-                RSAalg.ImportParameters(Key);
-
-                // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider
-                // to specify the use of SHA1 for hashing.
-                signResult = RSAalg.SignData(bytes, new SHA256CryptoServiceProvider());
-                return result = Encoding.ASCII.GetString(signResult);
+                RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+                RSA.ImportParameters(Key);
+                signResult = RSA.SignData(bytes, new SHA256CryptoServiceProvider());
+                result = Convert.ToBase64String(signResult);
+                byte[] signedmsg = Convert.FromBase64String(result);
+                return result;
             }
             catch (CryptographicException e)
             {
@@ -33,20 +30,38 @@ namespace SecureBlackjack
             }
         }
 
-        public static bool VerifySignedHash(String s, byte[] SignedData, RSAParameters Key)
+        public bool VerifySignedHash(String[] s, RSAParameters Key)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(s);
+            ASCIIEncoding ByteConverter = new ASCIIEncoding();
+            String signed = s[s.Length - 1];
+            String text = "";
+
+            for (int i = 0; i < s.Length - 1; i++)
+            {
+                if(i+1 == s.Length-1) // next iteration ends loop
+                {
+                    text += s[i];
+                }
+                else
+                {
+                    text += s[i] + ' '; //rebuilds the string as it was before the Split()
+                }
+            }
+            byte[] bytes = ByteConverter.GetBytes(text);
+            byte[] signedmsg = new byte[] { };
+            try {
+                signedmsg = Convert.FromBase64String(signed);
+            }
+            catch(Exception f)
+            {
+                return false;
+            }
+
             try
             {
-                // Create a new instance of RSACryptoServiceProvider using the
-                // key from RSAParameters.
-                RSACryptoServiceProvider RSAalg = new RSACryptoServiceProvider();
-
-                RSAalg.ImportParameters(Key);
-
-                // Verify the data using the signature.  Pass a new instance of SHA1CryptoServiceProvider
-                // to specify the use of SHA1 for hashing.
-                return RSAalg.VerifyData(bytes, new SHA256CryptoServiceProvider(), SignedData);
+                RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+                RSA.ImportParameters(Key); //use the public key of person sending message
+                return RSA.VerifyData(bytes, new SHA256CryptoServiceProvider(), signedmsg);
             }
             catch (CryptographicException e)
             {
