@@ -14,8 +14,6 @@ namespace SecureBlackjack
         Signing sign = new Signing();
         static RSACryptoServiceProvider RSA;
         static RSACryptoServiceProvider Server;
-        private static string PubKey;
-        private static string PrivKey;
         private static bool HasKey = false;
         private static int c = 0;
         private static Signing signer = new Signing();

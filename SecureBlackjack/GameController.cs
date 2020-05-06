@@ -38,13 +38,13 @@ namespace SecureBlackjack
             playerListen.IncludeSubdirectories = true;
             Console.WriteLine("Waiting for players to register! When you are ready to start the game, press Enter.");
             while (Players.Count == 0)
-                continue; //Don't allow gamestart with no players
+                continue; //Don't allow gamestart with 0 players
             Console.ReadKey();
             playerListen.Dispose();
             GameLoop();
         }
 
-        private void GameLoop()
+        private void GameLoop() //Main Game loop that calls sub loops
         {
             bool gameOver = false; //Eventually we may decide to implement a win condition. For now it will just play rounds indefiniately
             while(!gameOver)
@@ -192,7 +192,7 @@ namespace SecureBlackjack
                 Communicate(Players[i], m);
             }
         }
-        private void ProcessBet(Player p)
+        private void ProcessBet(Player p) //Process player bets
         {
             int playerChips = p.Chips;
             if (playerChips <= 0)
@@ -279,7 +279,7 @@ namespace SecureBlackjack
             }
         }
 
-        private void Withdraw(Player p, int amt)
+        private void Withdraw(Player p, int amt) //Withdraw method for chips
         {
             Console.WriteLine(amt);
             if (amt < MIN_BET || amt > MAX_BET)
@@ -322,10 +322,9 @@ namespace SecureBlackjack
             while (!p.Done)
                 continue;
             turnListen.Dispose();
-
         }
 
-        private int GetHandValue(List<Card> hand)
+        private int GetHandValue(List<Card> hand) //Method returns total value of hand
         {
             int value = 0;
             int ace = 0;
@@ -372,7 +371,7 @@ namespace SecureBlackjack
                 return;
             }
 
-            switch (message[0])
+            switch (message[0]) //Switch case for determining what a player wants to do.
             {
                 case "h":
                 case "hit":
@@ -400,7 +399,7 @@ namespace SecureBlackjack
             }
         }
 
-       private void Deal(Player p)
+       private void Deal(Player p) //Deals a random card to a player
         {
             Card next = deck.DrawCard();
             p.DealCard(next);
