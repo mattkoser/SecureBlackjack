@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SecureBlackjack
@@ -17,7 +18,8 @@ namespace SecureBlackjack
         public int Count { get; set; }
         public bool Won { get; set; }
         public int Bet { get; set; }
-        public Player(String name)
+        public RSAParameters pubKey;
+        public Player(String name, RSAParameters key)
         {
             Name = name;
             Folder = @"C:\Blackjack\" + name.ToUpper();
@@ -25,6 +27,7 @@ namespace SecureBlackjack
             Done = false;
             Count = 0;
             Won = false;
+            pubKey = key;
         }
 
        public void Reset()

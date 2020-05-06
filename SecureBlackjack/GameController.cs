@@ -8,6 +8,7 @@ namespace SecureBlackjack
 {
     class GameController
     {
+        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -406,15 +407,20 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
+            
+            String[] split = line.Split(' ');
+            String name = split[0];
+
             String folder = @"C:\Blackjack";
             String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
-            Console.WriteLine($"{line} has been registered!");
+            Console.WriteLine($"{name} has been registered!");
+            Console.WriteLine("Signature: " + split[1]);
             try
             {
-                folderMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
-                otherMaker.CreateSubdirectory(line.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
+                folderMaker.CreateSubdirectory(name.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
+                otherMaker.CreateSubdirectory(name.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
             }
             catch (Exception f)
             {
@@ -422,7 +428,7 @@ namespace SecureBlackjack
                 Console.ReadKey();
                 Environment.Exit(0);
             }
-            Player newPlayer = new Player(line);
+            Player newPlayer = new Player(name, RSA.ExportParameters(false));
             Communicate(newPlayer, "good"); //Validate player name and send "bad" if their name does not fit criteria
             Players.Add(newPlayer); //only if name is "good"
         }

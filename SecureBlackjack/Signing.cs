@@ -6,10 +6,10 @@ namespace SecureBlackjack
 {
     class Signing
     {
-        public static String HashAndSignBytes(String s, RSAParameters Key)
+        public byte[] HashAndSignBytes(String s, RSAParameters Key)
         {
-            String result;
-            byte[] bytes = Encoding.ASCII.GetBytes(s);
+            var Encoder = new UTF8Encoding();
+            byte[] bytes = Encoder.GetBytes(s);
             byte[] signResult;
 
             try
@@ -22,8 +22,8 @@ namespace SecureBlackjack
 
                 // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider
                 // to specify the use of SHA1 for hashing.
-                signResult = RSAalg.SignData(bytes, new SHA256CryptoServiceProvider());
-                return result = Encoding.ASCII.GetString(signResult);
+                signResult = RSAalg.SignData(bytes, new SHA1CryptoServiceProvider());
+                return signResult;
             }
             catch (CryptographicException e)
             {
@@ -33,9 +33,10 @@ namespace SecureBlackjack
             }
         }
 
-        public static bool VerifySignedHash(String s, byte[] SignedData, RSAParameters Key)
+        public bool VerifySignedHash(String s, byte[] SignedData, RSAParameters Key)
         {
-            byte[] bytes = Encoding.ASCII.GetBytes(s);
+            var Encoder = new UTF8Encoding();
+            byte[] bytes = Encoder.GetBytes(s);
             try
             {
                 // Create a new instance of RSACryptoServiceProvider using the
@@ -46,7 +47,7 @@ namespace SecureBlackjack
 
                 // Verify the data using the signature.  Pass a new instance of SHA1CryptoServiceProvider
                 // to specify the use of SHA1 for hashing.
-                return RSAalg.VerifyData(bytes, new SHA256CryptoServiceProvider(), SignedData);
+                return RSAalg.VerifyData(bytes, new SHA1CryptoServiceProvider(), SignedData);
             }
             catch (CryptographicException e)
             {

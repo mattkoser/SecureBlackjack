@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SecureBlackjack
 {
@@ -11,7 +12,7 @@ namespace SecureBlackjack
         static string name;
         static string RegStatus = "notreg";
         static bool Started = false;
-        Signing sign = new Signing();
+        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
@@ -198,14 +199,17 @@ namespace SecureBlackjack
 
         private static void Communicate(String message)
         {
+            Signing Sign = new Signing();
             String destination;
+            byte[] signature;
+            signature = Sign.HashAndSignBytes(message, RSA.ExportParameters(false));
             if(count == 0) //The first message needs to be placed in the main directory of controller
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";
             else
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\"  + "communication" + count.ToString() + ".txt";
             using (StreamWriter s = File.CreateText(destination))
             {
-                s.WriteLine(message);
+                s.WriteLine(message + " " + signature);
             }
             count++;
         }
