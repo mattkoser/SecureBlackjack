@@ -8,7 +8,6 @@ namespace SecureBlackjack
 {
     class GameController
     {
-        RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
         FileSystemWatcher Communicator = new FileSystemWatcher();
         List<Player> Players = new List<Player>();
         Deck deck = new Deck();
@@ -17,10 +16,13 @@ namespace SecureBlackjack
         bool DealerBust = false;
         const int MIN_BET = 1;
         const int MAX_BET = 100;
+        RSACryptoServiceProvider RSA;
+        Signing Sign = new Signing();
 
         public GameController()
         {
             Console.WriteLine("Controller client now running! Please note this window must be active as it functions as the \"server\" for this blackjack game.");
+            RSA = new RSACryptoServiceProvider();
             WaitForPlayers();
         }
 
@@ -35,6 +37,8 @@ namespace SecureBlackjack
             playerListen.Created += NewPlayer;
             playerListen.IncludeSubdirectories = true;
             Console.WriteLine("Waiting for players to register! When you are ready to start the game, press Enter.");
+            while (Players.Count == 0)
+                continue; //Don't allow gamestart with no players
             Console.ReadKey();
             playerListen.Dispose();
             GameLoop();
@@ -230,11 +234,18 @@ namespace SecureBlackjack
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(f.Message);
             }
-
+            string[] message = line.Split(' ');
+            bool signed = false;
+            signed = Sign.VerifySignedHash(message, Players[Current].Pubkey); //Verify against players publikey
+            if (!signed)
+            {
+                Console.WriteLine("Unsigned message detected! Ignoring...");
+                return;
+            }
             int bet;
             try
             {
-                bet = Int32.Parse(line);
+                bet = Int32.Parse(message[0]);
             }
             catch (Exception g) //Usually when the input is not a valid integer
             {
@@ -352,7 +363,16 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            switch (line)
+            string[] message = line.Split(' ');
+            bool signed = false;
+            signed = Sign.VerifySignedHash(message, Players[Current].Pubkey); //Verify against players publikey
+            if (!signed)
+            {
+                Console.WriteLine("Invalid message detected!");
+                return;
+            }
+
+            switch (message[0])
             {
                 case "h":
                 case "hit":
@@ -407,36 +427,51 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
 
-            
-            String[] split = line.Split(' ');
-            String name = split[0];
+            string[] reg = line.Split(' '); //Split between name and pubkey.
 
             String folder = @"C:\Blackjack";
             String otherFolder = @"C:\Blackjack\CONTROLLER";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             DirectoryInfo otherMaker = new DirectoryInfo(otherFolder);
-            Console.WriteLine($"{name} has been registered!");
-            Console.WriteLine("Signature: " + split[1]);
             try
             {
-                folderMaker.CreateSubdirectory(name.ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
-                otherMaker.CreateSubdirectory(name.ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
+                folderMaker.CreateSubdirectory(reg[0].ToUpper()); //Creates C:\Blackjack\NAME, folder where outgoing comms are placed
+                otherMaker.CreateSubdirectory(reg[0].ToUpper()); //Creates C:\Blackjack\NAME, where incoming comms are placed
             }
             catch (Exception f)
             {
-                Console.WriteLine($"Error: {f.ToString()}.");
-                Console.ReadKey();
-                Environment.Exit(0);
+                Console.WriteLine($"Error: {f.ToString()}. Player registration dropped");
+                return;
             }
-            Player newPlayer = new Player(name, RSA.ExportParameters(false));
-            Communicate(newPlayer, "good"); //Validate player name and send "bad" if their name does not fit criteria
+
+            Player newPlayer = new Player(reg[0], reg[1]);
+            char[] badChars = Path.GetInvalidPathChars();
+            bool hasBadChars = reg[0].IndexOfAny(badChars) >= 0; //Check if any bad chars are in name (Bad
+            if (reg.Length != 3 || hasBadChars) //Should always be a one word name and then keystring
+            {
+                Communicate(newPlayer, "bad ");
+                return;
+            }
+            Communicate(newPlayer, "good "); //Validate player name and send "bad" if their name does not fit criteria
+            Communicate(newPlayer, $"key {RSA.ToXmlString(false)}"); //Send pubkey
             Players.Add(newPlayer); //only if name is "good"
+            Console.WriteLine($"Added ${newPlayer.Name}!");
         }
+
+        
 
         private void Communicate(Player p, String message)
         {
             p.Count = p.Count + 1;
+            string signed = "";
+            String garbage = DateTime.Now.ToString("MMddyyyyHHmmssff");
+            message = message + " " + garbage;
+            if (!(p.Count <= 2)) //The first 2 communications can't be signed
+            {
+                signed = Sign.HashAndSignBytes(message, RSA.ExportParameters(true));
+            }
             string destination = p.Folder + "\\" + "message" + p.Count + ".txt";
+            message = message + " " + signed;
             Thread.Sleep(100);
             using(StreamWriter s = File.CreateText(destination))
             {

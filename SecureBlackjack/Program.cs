@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 
 namespace SecureBlackjack
 {
@@ -12,7 +11,15 @@ namespace SecureBlackjack
         static string name;
         static string RegStatus = "notreg";
         static bool Started = false;
-        static RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
+        Signing sign = new Signing();
+        static RSACryptoServiceProvider RSA;
+        static RSACryptoServiceProvider Server;
+        private static string PubKey;
+        private static string PrivKey;
+        private static bool HasKey = false;
+        private static int c = 0;
+        private static Signing signer = new Signing();
+
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.Unicode;
@@ -48,6 +55,7 @@ namespace SecureBlackjack
         
         private static void Recieved(object sender, FileSystemEventArgs e)
         {
+            c++;
             String line = "";
             Thread.Sleep(50);
             try
@@ -55,6 +63,7 @@ namespace SecureBlackjack
                 using (StreamReader sr = new StreamReader(e.FullPath))
                 {
                     line = sr.ReadToEnd();
+                    //line = line.Remove(line.Length - 2); // get rid of new line escape char 
                 }
             }
             catch (IOException f)
@@ -63,6 +72,13 @@ namespace SecureBlackjack
                 Console.WriteLine(f.Message);
             }
             String[] message = line.Split(' ');
+            bool signed = false;
+            signed = signer.VerifySignedHash(message, Server.ExportParameters(false)); //Verify against servers publikey
+            if(!signed)
+            {
+                Console.WriteLine("Unsigned message detected! Ignoring...");
+                return;
+            }
             Console.WriteLine("\n_____________________________________________________________\n");
             switch(message[0]) //first word is the "command"
             {
@@ -137,12 +153,21 @@ namespace SecureBlackjack
 
         private static void Register()
         {
-            name = Console.ReadLine();
+            name = Console.ReadLine(); 
+
             if (name.ToUpper().Equals("CONTROLLER"))
             {
                 GameController controller = new GameController(); //This redirects all of the logic to the gamecontroller object. When it finishes in the controller, the program exits
                 Environment.Exit(0);
             }
+
+            if (name.ToUpper().Equals("TRUDY"))
+            {
+                Trudy t = new Trudy(); //This redirects all of the logic to the trudy object. When it finishes, the program exits
+                Environment.Exit(0);
+            }
+            RSA = new RSACryptoServiceProvider();
+            string rsaPub = RSA.ToXmlString(false); //Get xml of pubkey
             String folder = @"C:\Blackjack";
             DirectoryInfo folderMaker = new DirectoryInfo(folder);
             FileSystemWatcher registerListen = new FileSystemWatcher();
@@ -157,7 +182,10 @@ namespace SecureBlackjack
                 Environment.Exit(0);
             }
             Thread.Sleep(350);
-            Communicate(name);
+            //build a string name + pubkey
+            string registration = name + " " + rsaPub;
+            Communicate(registration); //the above ^
+            Thread.Sleep(350);
             string path = @"C:\Blackjack\" + name.ToUpper();
             registerListen.Path = path;
             registerListen.Filter = "*.txt";
@@ -175,6 +203,42 @@ namespace SecureBlackjack
                 Environment.Exit(0);
             }
             registerListen.Dispose();
+            FileSystemWatcher keyListen = new FileSystemWatcher();
+            keyListen.Path = path;
+            keyListen.Filter = "*.txt";
+            keyListen.EnableRaisingEvents = true;
+            keyListen.Created += SetKey;
+            keyListen.IncludeSubdirectories = true;
+            while (!HasKey)
+                continue;
+            keyListen.Dispose();
+        }
+
+        private static void SetKey(object sender, FileSystemEventArgs e)
+        {
+            String line = "";
+            Thread.Sleep(50);
+            try
+            {
+                using (StreamReader sr = new StreamReader(e.FullPath))
+                {
+                    line = sr.ReadToEnd();
+                    line = line.Remove(line.Length - 2); // get rid of new line escape char
+                }
+            }
+            catch (IOException f)
+            {
+                Console.WriteLine("The file could not be read:");
+                Console.WriteLine(f.Message);
+            }
+            string[] message = line.Split(' ');
+            if (!HasKey) //only accept it once
+            {
+                Server = new RSACryptoServiceProvider();
+                Server.FromXmlString(message[1]); //Get servers publikey
+            }
+            HasKey = true;
+        
         }
 
         private static void ConfirmRegister(object sender, FileSystemEventArgs e)
@@ -199,17 +263,21 @@ namespace SecureBlackjack
 
         private static void Communicate(String message)
         {
-            Signing Sign = new Signing();
             String destination;
-            byte[] signature;
-            signature = Sign.HashAndSignBytes(message, RSA.ExportParameters(false));
+            string signed = "";
             if(count == 0) //The first message needs to be placed in the main directory of controller
                 destination = @"C:\Blackjack\CONTROLLER" + "\\" + "registration" + name + ".txt";
             else
-                destination = @"C:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\"  + "communication" + count.ToString() + ".txt";
+                destination = @"C:\Blackjack\CONTROLLER" + "\\" + name.ToUpper() + "\\" + "communication" + count.ToString() + ".txt";
+            if (count > 0)
+                {
+                    String garbage = DateTime.Now.ToString("MMddyyyyHHmmssff");
+                    message = message + " " + garbage;
+                    signed = signer.HashAndSignBytes(message, RSA.ExportParameters(true)); //encrypt using pubkey                
+                }
             using (StreamWriter s = File.CreateText(destination))
             {
-                s.WriteLine(message + " " + signature);
+                s.WriteLine(message + " " + signed);
             }
             count++;
         }
