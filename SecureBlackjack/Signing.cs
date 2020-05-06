@@ -16,7 +16,7 @@ namespace SecureBlackjack
             try
             {
                 RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-                RSA.ImportParameters(Key);
+                RSA.ImportParameters(Key); //Imports passed key
                 signResult = RSA.SignData(bytes, new SHA256CryptoServiceProvider());
                 result = Convert.ToBase64String(signResult);
                 byte[] signedmsg = Convert.FromBase64String(result);
